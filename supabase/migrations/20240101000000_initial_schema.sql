@@ -441,8 +441,8 @@ INSERT INTO public.site_config (key, value, description) VALUES
   ('contact_whatsapp', '"+1 (956) 308-2357"', 'WhatsApp contact'),
   ('social_instagram', '""', 'Instagram URL (empty for now)'),
   ('social_twitter', '""', 'Twitter/X URL (empty for now)'),
-  ('legal_terms_updated', 'to_jsonb(NOW())', 'Terms last updated'),
-  ('legal_privacy_updated', 'to_jsonb(NOW())', 'Privacy policy last updated');
+  ('legal_terms_updated', to_jsonb(NOW()), 'Terms last updated'),
+  ('legal_privacy_updated', to_jsonb(NOW()), 'Privacy policy last updated');
 
 -- Seed feature flags
 INSERT INTO public.feature_flags (name, enabled, description) VALUES
