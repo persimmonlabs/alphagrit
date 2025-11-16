@@ -1,72 +1,99 @@
 import Link from 'next/link'
-import { CONTACT } from '@/lib/constants'
+import { Container } from '@/components/ui/layout'
+import { Grid } from '@/components/ui/layout'
+import { Stack } from '@/components/ui/layout'
+import { Section } from '@/components/ui/layout'
+import { Heading } from '@/components/ui/typography'
+import { Text } from '@/components/ui/typography'
+import { Divider } from '@/components/ui/spacing'
+import { ROUTES, CONTACT } from '@/lib/constants'
+
+type FooterLink = {
+  label: string
+  href: string
+  external?: boolean
+}
+
+const FOOTER_SECTIONS: Record<string, { title: string; links: FooterLink[] }> = {
+  products: {
+    title: 'Products',
+    links: [
+      { label: 'All Products', href: ROUTES.STORE },
+      { label: 'E-books', href: ROUTES.STORE },
+    ],
+  },
+  company: {
+    title: 'Company',
+    links: [
+      { label: 'About', href: '/about' },
+      { label: 'Blog', href: ROUTES.BLOG },
+      { label: 'Contact', href: '/contact' },
+    ],
+  },
+  legal: {
+    title: 'Legal',
+    links: [
+      { label: 'Terms of Service', href: ROUTES.TERMS },
+      { label: 'Privacy Policy', href: ROUTES.PRIVACY },
+      { label: 'Refund Policy', href: ROUTES.REFUND },
+    ],
+  },
+  support: {
+    title: 'Support',
+    links: [
+      { label: 'FAQ', href: '/#faq' },
+      { label: 'WhatsApp', href: CONTACT.WHATSAPP_LINK, external: true },
+    ],
+  },
+}
 
 export function Footer() {
+  const currentYear = new Date().getFullYear()
+
   return (
     <footer className="border-t bg-background">
-      <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <div className="space-y-4">
-            <h3 className="text-xl font-black text-primary-500">ALPHA GRIT</h3>
-            <p className="text-sm text-muted-foreground">
-              Transform your life through discipline, strength, and relentless action.
-            </p>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold">Products</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/store" className="hover:text-primary-500">
-                  All Products
-                </Link>
-              </li>
-              <li>
-                <Link href="/store" className="hover:text-primary-500">
-                  E-books
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold">Company</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/blog" className="hover:text-primary-500">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <a href={CONTACT.WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-primary-500">
-                  Contact
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold">Legal</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/legal/terms" className="hover:text-primary-500">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/privacy" className="hover:text-primary-500">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/refund" className="hover:text-primary-500">
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Alpha Grit. All rights reserved.</p>
-        </div>
-      </div>
+      <Section spacing="lg">
+        <Container>
+          <Grid cols={4} gap="lg">
+            {/* Brand */}
+            <Stack gap="md">
+              <Heading level="h6" weight="black" className="text-primary-500">
+                ALPHA GRIT
+              </Heading>
+              <Text size="sm" color="muted">
+                Transform your life through discipline, strength, and relentless action.
+              </Text>
+            </Stack>
+
+            {/* Footer Links */}
+            {Object.entries(FOOTER_SECTIONS).map(([key, section]) => (
+              <Stack key={key} gap="md">
+                <Heading level="h6" weight="semibold">
+                  {section.title}
+                </Heading>
+                <Stack gap="sm">
+                  {section.links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-primary-500 transition-colors"
+                      {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </Stack>
+              </Stack>
+            ))}
+          </Grid>
+
+          <Divider spacing="lg" />
+
+          <Text size="sm" color="muted" align="center">
+            &copy; {currentYear} Alpha Grit. All rights reserved.
+          </Text>
+        </Container>
+      </Section>
     </footer>
   )
 }

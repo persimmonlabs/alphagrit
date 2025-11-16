@@ -2,57 +2,107 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ShoppingCart, Menu, User } from 'lucide-react'
+import { ShoppingCart, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Flex } from '@/components/ui/layout'
+import { Container } from '@/components/ui/layout'
+import { MobileOnly, DesktopOnly } from '@/components/ui/responsive'
+import { Text } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
+import { ROUTES } from '@/lib/constants'
+
+const NAV_ITEMS = [
+  { label: 'Products', href: ROUTES.STORE },
+  { label: 'Blog', href: ROUTES.BLOG },
+] as const
 
 export function Header() {
   const pathname = usePathname()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/store" className="flex items-center space-x-2">
-            <span className="text-2xl font-black text-primary-500">ALPHA GRIT</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/store"
-              className={cn(
-                'text-sm font-medium transition-colors hover:text-primary-500',
-                pathname === '/store' ? 'text-primary-500' : 'text-muted-foreground'
-              )}
+      <Container>
+        <Flex
+          justify="between"
+          align="center"
+          className="h-16"
+        >
+          {/* Logo */}
+          <Link href={ROUTES.STORE} className="flex items-center">
+            <Text
+              as="span"
+              size="2xl"
+              weight="bold"
+              className="text-primary-500 tracking-tight"
             >
-              Products
+              ALPHA GRIT
+            </Text>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <DesktopOnly>
+            <nav>
+              <Flex gap="lg">
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-primary-500',
+                      pathname === item.href ? 'text-primary-500' : 'text-muted-foreground'
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </Flex>
+            </nav>
+          </DesktopOnly>
+
+          {/* Actions */}
+          <Flex gap="md" align="center">
+            <Link href={ROUTES.CART}>
+              <Button variant="ghost" size="icon" aria-label="Shopping cart">
+                <ShoppingCart className="h-5 w-5" />
+              </Button>
             </Link>
-            <Link
-              href="/blog"
-              className={cn(
-                'text-sm font-medium transition-colors hover:text-primary-500',
-                pathname.startsWith('/blog') ? 'text-primary-500' : 'text-muted-foreground'
-              )}
-            >
-              Blog
+
+            <Link href={ROUTES.ACCOUNT}>
+              <Button variant="ghost" size="icon" aria-label="Account">
+                <User className="h-5 w-5" />
+              </Button>
             </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/cart">
-            <Button variant="ghost" size="icon">
-              <ShoppingCart className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link href="/account">
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link href="/auth/signin">
-            <Button variant="default">Sign In</Button>
-          </Link>
-        </div>
-      </div>
+
+            <DesktopOnly>
+              <Link href={ROUTES.SIGNIN}>
+                <Button variant="default">Sign In</Button>
+              </Link>
+            </DesktopOnly>
+          </Flex>
+        </Flex>
+
+        {/* Mobile Navigation */}
+        <MobileOnly>
+          <Flex
+            gap="md"
+            justify="center"
+            className="pb-4 border-t mt-2 pt-2"
+          >
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-primary-500 px-3 py-2',
+                  pathname === item.href ? 'text-primary-500' : 'text-muted-foreground'
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </Flex>
+        </MobileOnly>
+      </Container>
     </header>
   )
 }
