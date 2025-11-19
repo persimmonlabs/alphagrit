@@ -10,6 +10,7 @@ import { MobileOnly, DesktopOnly } from '@/components/ui/responsive'
 import { Text } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/lib/constants'
+import { useCart } from '@/components/providers/cart-provider'
 
 const NAV_ITEMS = [
   { label: 'Products', href: ROUTES.STORE },
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
 
 export function Header() {
   const pathname = usePathname()
+  const { totalItems } = useCart()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -62,8 +64,13 @@ export function Header() {
           {/* Actions */}
           <Flex gap="md" align="center">
             <Link href={ROUTES.CART}>
-              <Button variant="ghost" size="icon" aria-label="Shopping cart">
+              <Button variant="ghost" size="icon" aria-label="Shopping cart" className="relative">
                 <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {totalItems}
+                  </span>
+                )}
               </Button>
             </Link>
 

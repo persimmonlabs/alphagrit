@@ -1,3 +1,5 @@
+import { getProducts } from '@/lib/actions/products'
+import { ProductCard } from '@/components/store/product-card'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/layout'
 import { Section } from '@/components/ui/layout'
@@ -9,7 +11,9 @@ import { Heading } from '@/components/ui/typography'
 import { Spacer } from '@/components/ui/spacing'
 import Link from 'next/link'
 
-export default function StorePage() {
+export default async function StorePage() {
+  const { data: products, success } = await getProducts();
+
   return (
     <Container>
       {/* Hero Section */}
@@ -48,14 +52,22 @@ export default function StorePage() {
             Our Products
           </Heading>
 
-          <Stack gap="lg" align="center">
-            <Text size="lg" color="muted" align="center">
-              Products will be loaded here dynamically from Supabase.
-            </Text>
-            <Text size="sm" color="muted" align="center">
-              Admin panel required to add products.
-            </Text>
-          </Stack>
+          {success && products && products.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <Stack gap="lg" align="center">
+              <Text size="lg" color="muted" align="center">
+                No products available at the moment.
+              </Text>
+              <Text size="sm" color="muted" align="center">
+                Please check back later or contact support.
+              </Text>
+            </Stack>
+          )}
         </Stack>
       </Section>
 

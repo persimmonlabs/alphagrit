@@ -49,6 +49,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { CartProvider } from '@/components/providers/cart-provider'
+
 export default function RootLayout({
   children,
 }: {
@@ -63,29 +65,31 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              className: '',
-              style: {
-                background: '#333',
-                color: '#fff',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#f97316',
-                  secondary: '#fff',
+          <CartProvider>
+            {children}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                className: '',
+                style: {
+                  background: '#333',
+                  color: '#fff',
                 },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
+                success: {
+                  iconTheme: {
+                    primary: '#f97316',
+                    secondary: '#fff',
+                  },
                 },
-              },
-            }}
-          />
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
