@@ -183,7 +183,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <Button size="xl" className="w-full" type="submit" disabled={isLoading}>
+                <Button size="lg" className="w-full" type="submit" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

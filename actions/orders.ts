@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia'
+  apiVersion: '2025-02-24.acacia'
 })
 
 export interface OrderItem {
@@ -73,7 +73,7 @@ export async function getUserOrders(): Promise<{ success: boolean; orders?: Orde
       return { success: false, error: 'Failed to fetch orders' }
     }
 
-    return { success: true, orders: data as Order[] }
+    return { success: true, orders: data as unknown as Order[] }
   } catch (error) {
     console.error('Get user orders error:', error)
     return { success: false, error: 'An unexpected error occurred' }
@@ -122,7 +122,7 @@ export async function getOrderById(orderId: string): Promise<{ success: boolean;
       return { success: false, error: 'Order not found' }
     }
 
-    return { success: true, order: data as Order }
+    return { success: true, order: data as unknown as Order }
   } catch (error) {
     console.error('Get order by ID error:', error)
     return { success: false, error: 'An unexpected error occurred' }
@@ -179,8 +179,8 @@ export async function refundOrder(orderId: string): Promise<{ success: boolean; 
     // Update order status using admin client to bypass RLS
     const adminSupabase = createAdminClient()
     
-    const { error: updateError } = await adminSupabase
-      .from('orders')
+    const { error: updateError } = await (adminSupabase
+      .from('orders') as any)
       .update({ status: 'refunded' })
       .eq('id', orderId)
 
@@ -266,7 +266,7 @@ export async function getAllOrders(filters?: {
       return { success: false, error: 'Failed to fetch orders' }
     }
 
-    return { success: true, orders: data as Order[] }
+    return { success: true, orders: data as unknown as Order[] }
   } catch (error) {
     console.error('Get all orders error:', error)
     return { success: false, error: 'An unexpected error occurred' }
@@ -325,7 +325,7 @@ export async function getAdminOrderById(orderId: string): Promise<{ success: boo
       return { success: false, error: 'Order not found' }
     }
 
-    return { success: true, order: data as Order }
+    return { success: true, order: data as unknown as Order }
   } catch (error) {
     console.error('Get admin order by ID error:', error)
     return { success: false, error: 'An unexpected error occurred' }
@@ -384,8 +384,8 @@ export async function adminRefundOrder(orderId: string): Promise<{ success: bool
     // Update order status using admin client to bypass RLS
     const adminSupabase = createAdminClient()
     
-    const { error: updateError } = await adminSupabase
-      .from('orders')
+    const { error: updateError } = await (adminSupabase
+      .from('orders') as any)
       .update({ status: 'refunded' })
       .eq('id', orderId)
 

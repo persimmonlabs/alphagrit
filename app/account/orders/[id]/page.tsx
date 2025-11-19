@@ -32,7 +32,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         <h1 className="text-3xl font-bold mb-8">Order Not Found</h1>
         <Card>
           <CardContent className="p-6">
-            <p className="text-muted-foreground">The order you're looking for doesn't exist or you don't have access to it.</p>
+            <p className="text-muted-foreground">The order you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.</p>
             <Button asChild className="mt-4">
               <Link href="/account/orders">
                 <ArrowLeft className="mr-2 h-4 w-4" />

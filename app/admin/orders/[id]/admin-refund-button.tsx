@@ -57,7 +57,7 @@ export default function AdminRefundButton({ orderId }: AdminRefundButtonProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to refund this order? This will return the funds to the customer's original payment method.
+            Are you sure you want to refund this order? This will return the funds to the customer&apos;s original payment method.
             This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>

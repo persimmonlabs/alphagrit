@@ -54,7 +54,7 @@ export default async function MyEbooksPage() {
               <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
               <Heading level="h3" className="mb-2">No E-books Yet</Heading>
               <Text color="muted" className="mb-6 max-w-md">
-                You haven't purchased any e-books yet. Browse our store to find your next read.
+                You haven&apos;t purchased any e-books yet. Browse our store to find your next read.
               </Text>
               <Button asChild>
                 <Link href="/store">Browse Store</Link>

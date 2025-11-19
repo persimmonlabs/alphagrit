@@ -2,14 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@/lib/supabase/server'
 
 export async function signIn(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const redirectTo = formData.get('redirect') as string | null
 
-  const supabase = await createClient()
+  const supabase = await createServerClient()
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -31,7 +31,7 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
 
-  const supabase = await createClient()
+  const supabase = await createServerClient()
 
   // Sign up user
   const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -72,14 +72,14 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = await createClient()
+  const supabase = await createServerClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
   redirect('/')
 }
 
 export async function signInWithGoogle() {
-  const supabase = await createClient()
+  const supabase = await createServerClient()
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

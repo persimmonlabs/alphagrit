@@ -16,11 +16,11 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <Container>
-        <Section spacing="2xl">
+        <Section spacing="xl">
           <Stack gap="lg" align="center" className="text-center">
             <Heading level="h2">Your Cart is Empty</Heading>
             <Text size="lg" color="muted">
-              It looks like you haven't added any products yet.
+              It looks like you haven&apos;t added any products yet.
             </Text>
             <Spacer size="md" />
             <Button size="lg" asChild>
@@ -126,7 +126,7 @@ export default function CartPage() {
 
                 <Spacer size="sm" />
 
-                <Button size="xl" className="w-full group" asChild>
+                <Button size="lg" className="w-full group" asChild>
                   <Link href="/checkout">
                     Proceed to Checkout
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
