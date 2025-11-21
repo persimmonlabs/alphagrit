@@ -83,7 +83,7 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
       {/* --- INFINITE MARQUEE (Visual Break) --- */}
       <div className="border-b border-border bg-primary py-3 overflow-hidden relative select-none">
          <div className="animate-marquee whitespace-nowrap font-mono text-xs md:text-sm font-bold uppercase tracking-[0.3em] text-black">
-            // SYSTEM OVERRIDE // DISCONNECT FROM THE NOISE // REBUILD THE HARDWARE // ALPHAGRIT PROTOCOL V1.0 // SYSTEM OVERRIDE // DISCONNECT FROM THE NOISE
+            {`// SYSTEM OVERRIDE // DISCONNECT FROM THE NOISE // REBUILD THE HARDWARE // ALPHAGRIT PROTOCOL V1.0 // SYSTEM OVERRIDE // DISCONNECT FROM THE NOISE`}
          </div>
       </div>
 
