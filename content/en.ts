@@ -1,5 +1,5 @@
 export const en = {
-  nav: { manifesto: "[MANIFESTO]", products: "[PRODUCTS]", login: "[LOGIN]" },
+  nav: { manifesto: "[MANIFESTO]", products: "[PRODUCTS]", login: "[LOGIN]", blog: "[BLOG]", dashboard: "[DASHBOARD]" },
   hero: {
     status: "System Status: Operational",
     title_line1: "Rewrite",
@@ -22,6 +22,34 @@ export const en = {
     product_desc: "The complete manual for disconnecting from the matrix. Includes nutrition protocols, mental models, and financial strategies.",
     features: ["200+ Pages of Tactics", "Audio Companion", "Lifetime Updates"],
     cta: "Secure Access",
+    price: "$97",
   },
-  footer: { rights: "© 2025 ALL RIGHTS RESERVED.", location: "TERRE HAUTE, IN // [SECURE CONNECTION]" }
+  blog: {
+    title: "Knowledge Base",
+    noPosts: "No articles available yet. Check back soon.",
+    readMore: "Read more",
+    backToBlog: "Back to Blog",
+    relatedArticles: "Related Articles",
+    minuteRead: "min read",
+    publishedOn: "Published on",
+    by: "By",
+  },
+  dashboard: {
+    title: "My Dashboard",
+    nav: {
+      overview: "Overview",
+      profile: "My Profile",
+      orders: "Order History",
+      downloads: "My Downloads",
+      logout: "Logout",
+    },
+    myPurchases: "My Purchases",
+    myLibrary: "My Library",
+    noPurchases: "No purchases yet. Browse our products to get started.",
+    downloadButton: "Download",
+    purchaseDate: "Purchased on",
+    orderNumber: "Order #",
+    viewProducts: "View Products",
+  },
+  footer: { rights: "© 2025 ALL RIGHTS RESERVED.", location: "[SECURE CONNECTION]", price: "$97" }
 }

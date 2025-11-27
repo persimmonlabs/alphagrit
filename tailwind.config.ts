@@ -5,9 +5,10 @@ const config = {
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx,jsx}',  // Added jsx for component library
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+    './config/**/*.{ts,tsx}',  // Added config directory
   ],
   prefix: "",
   theme: {
@@ -63,6 +64,16 @@ const config = {
       borderWidth: {
         DEFAULT: "var(--border-width)",
         thick: "var(--border-width-thick)",
+      },
+      animation: {
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'gradient': 'gradient 8s ease infinite',
+      },
+      keyframes: {
+        gradient: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
       },
     },
   },

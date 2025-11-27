@@ -4,68 +4,35 @@
 
 @layer base {
   :root {
-    --color-void: 0 0% 4%;
-    --color-paper: 0 0% 8%;
-    --color-concrete: 0 0% 95%;
-    --color-ash: 0 0% 40%;
-    --color-safety: 16 100% 50%;
-    --color-danger: 0 100% 50%;
-
-    --background: var(--color-void);
-    --foreground: var(--color-concrete);
-    --card: var(--color-void); /* Void black cards */
-    --card-foreground: var(--color-concrete);
-    --primary: var(--color-safety);
-    --primary-foreground: var(--color-void);
-    --secondary: var(--color-paper);
-    --secondary-foreground: var(--color-concrete);
-    --muted: 0 0% 15%;
-    --muted-foreground: var(--color-ash);
-    --accent: var(--color-safety);
-    --accent-foreground: var(--color-void);
-    --destructive: var(--color-danger);
-    --destructive-foreground: var(--color-concrete);
-    --border: 0 0% 18%; /* High precision gray */
-    --input: 0 0% 18%;
-    --ring: var(--color-safety);
+    --background: 0 0% 0%; /* Pure Black */
+    --foreground: 0 0% 100%; /* Pure White */
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 16 100% 50%; /* Safety Orange */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 12%; /* Dark Grey for subtle hover states */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 40%; /* Dimmed text */
+    --accent: 16 100% 50%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 12%; /* Very subtle borders, barely visible */
+    --input: 0 0% 12%;
+    --ring: 16 100% 50%;
     --radius: 0px;
-    --border-width: 1px;
   }
 }
 
 @layer base {
   * { @apply border-border; }
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-primary selection:text-primary-foreground relative;
-  }
-  /* NOISE TEXTURE OVERLAY */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 50;
+    @apply bg-background text-foreground font-body antialiased selection:bg-white selection:text-black;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading uppercase tracking-tighter leading-[0.9];
+    @apply font-heading uppercase tracking-tight;
   }
-  /* Industrial Scrollbar */
-  ::-webkit-scrollbar {
-    width: 12px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-black;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-primary hover:bg-primary/80;
-  }
-}
-
-@layer utilities {
-  .text-balance { text-wrap: balance; }
-  .animate-blink { animation: blink 1s step-end infinite; }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-  .animate-marquee { animation: marquee 20s linear infinite; }
-  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 }
