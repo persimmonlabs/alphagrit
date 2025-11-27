@@ -4,6 +4,8 @@ import { serverApiClient } from '@/lib/api-client-server';
 import CheckoutTemplate from '@/components/templates/CheckoutTemplate';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 // Define interfaces for API data
 interface CartItem {
   id: string;

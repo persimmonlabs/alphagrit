@@ -2,6 +2,8 @@ import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import DashboardTemplate from '@/components/templates/DashboardTemplate';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage({
   params: { lang },
 }: {

@@ -3,6 +3,8 @@ import type { Locale } from '@/i18n-config';
 import { serverApiClient } from '@/lib/api-client-server';
 import ProductCatalogTemplate from '@/components/templates/ProductCatalogTemplate';
 
+export const dynamic = 'force-dynamic';
+
 // Define interfaces for API data
 interface Product {
   id: string;

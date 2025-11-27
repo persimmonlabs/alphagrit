@@ -2,7 +2,9 @@ import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import { serverApiClient } from '@/lib/api-client-server';
 import BlogIndexTemplate from '@/components/templates/BlogIndexTemplate';
-import { PostStatus } from '@/domain/entities/content'; // Assuming this enum is available
+import { PostStatus } from '@/domain/entities/content';
+
+export const dynamic = 'force-dynamic'; // Assuming this enum is available
 
 // Define interfaces for API data
 interface BlogPost {
