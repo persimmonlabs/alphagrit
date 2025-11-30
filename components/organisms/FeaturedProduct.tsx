@@ -57,8 +57,8 @@ export default function FeaturedProduct({ content, products }: FeaturedProductPr
     );
   }
 
-  // Determine the product URL based on slug
-  const productUrl = `/products/${featuredProduct.slug}`;
+  // Determine the product URL based on slug (now links to ebooks)
+  const productUrl = `/ebooks/${featuredProduct.slug}`;
   const price = featuredProduct.price_usd ? `$${featuredProduct.price_usd.toFixed(2)} USD` : '';
 
 

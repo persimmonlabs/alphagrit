@@ -3,331 +3,362 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { BookOpen, Users, CreditCard, Crown, ExternalLink, LogOut } from 'lucide-react';
 
-interface Order {
+interface Purchase {
   id: string;
-  customerName: string;
-  product: string;
-  amount: number;
-  status: 'completed' | 'pending' | 'processing';
-  date: string;
+  user_id: string;
+  sanity_ebook_id: string;
+  amount_paid: number;
+  currency: string;
+  created_at: string;
+  profiles?: { full_name: string | null; email?: string } | null;
 }
 
-const MOCK_ORDERS: Order[] = [
-  {
-    id: 'ORD-001',
-    customerName: 'Alex Thompson',
-    product: 'Python Basics for Beginners',
-    amount: 19.99,
-    status: 'completed',
-    date: '2024-01-25',
-  },
-  {
-    id: 'ORD-002',
-    customerName: 'Jordan Martinez',
-    product: 'Advanced React Patterns',
-    amount: 29.99,
-    status: 'completed',
-    date: '2024-01-24',
-  },
-  {
-    id: 'ORD-003',
-    customerName: 'Casey Lee',
-    product: 'Machine Learning Fundamentals',
-    amount: 39.99,
-    status: 'processing',
-    date: '2024-01-24',
-  },
-  {
-    id: 'ORD-004',
-    customerName: 'Taylor Swift',
-    product: 'Docker & Kubernetes Guide',
-    amount: 34.99,
-    status: 'pending',
-    date: '2024-01-23',
-  },
-  {
-    id: 'ORD-005',
-    customerName: 'Morgan Lee',
-    product: 'JavaScript Mastery',
-    amount: 24.99,
-    status: 'completed',
-    date: '2024-01-23',
-  },
-];
+interface Subscription {
+  id: string;
+  user_id: string;
+  plan_type: string;
+  status: string;
+  created_at: string;
+  profiles?: { full_name: string | null; email?: string } | null;
+}
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalPurchases: 0,
+    totalSubscriptions: 0,
+    totalUsers: 0,
+  });
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   useEffect(() => {
-    // Check admin authentication
-    const adminToken = localStorage.getItem('admin_token');
-    if (!adminToken) {
-      router.push('/admin/login');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+    checkAdminAndLoadData();
+  }, []);
 
-  if (!isAuthenticated) {
+  async function checkAdminAndLoadData() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push('/admin/login');
+        return;
+      }
+
+      // Check admin role
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.role !== 'admin') {
+        router.push('/admin/login');
+        return;
+      }
+
+      setIsAdmin(true);
+
+      // Load purchases with user info
+      const { data: purchasesData } = await supabase
+        .from('purchases')
+        .select('*, profiles(full_name)')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      // Load subscriptions with user info
+      const { data: subscriptionsData } = await supabase
+        .from('subscriptions')
+        .select('*, profiles(full_name)')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      // Get counts
+      const { count: purchaseCount } = await supabase
+        .from('purchases')
+        .select('*', { count: 'exact', head: true });
+
+      const { count: subscriptionCount } = await supabase
+        .from('subscriptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      const { count: userCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Calculate total revenue
+      const { data: revenueData } = await supabase
+        .from('purchases')
+        .select('amount_paid');
+
+      const totalRevenue = (revenueData || []).reduce((sum, p) => sum + (p.amount_paid || 0), 0) / 100;
+
+      setPurchases(purchasesData || []);
+      setSubscriptions(subscriptionsData || []);
+      setStats({
+        totalRevenue,
+        totalPurchases: purchaseCount || 0,
+        totalSubscriptions: subscriptionCount || 0,
+        totalUsers: userCount || 0,
+      });
+    } catch (error) {
+      console.error('Error loading admin data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push('/admin/login');
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return null;
   }
 
-  const totalRevenue = MOCK_ORDERS.reduce((sum, order) => sum + order.amount, 0);
-  const totalOrders = MOCK_ORDERS.length;
-  const totalCustomers = new Set(MOCK_ORDERS.map(o => o.customerName)).size;
-  const totalProducts = MOCK_PRODUCTS.length;
-
-  const topProducts = MOCK_PRODUCTS.slice(0, 3);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-[#00ff41]';
-      case 'processing':
-        return 'text-yellow-400';
-      case 'pending':
-        return 'text-orange-400';
-      default:
-        return 'text-white';
-    }
-  };
-
   return (
-    <div className="flex h-screen bg-black text-white">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } bg-neutral-900 border-r border-neutral-800 transition-all duration-300`}
-      >
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-[#00ff41]">
-            {sidebarOpen ? 'AlphaGrit' : 'AG'}
-          </h1>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="border-b border-neutral-800 p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-orange-500">AlphaGrit Admin</h1>
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className="text-neutral-400 hover:text-white"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
-        <nav className="mt-6">
-          <Link
-            href="/admin"
-            className="flex items-center px-6 py-3 bg-neutral-800 text-[#00ff41] border-l-4 border-[#00ff41]"
-          >
-            <span className="text-xl">📊</span>
-            {sidebarOpen && <span className="ml-3">Dashboard</span>}
-          </Link>
-          <Link
-            href="/admin/products"
-            className="flex items-center px-6 py-3 hover:bg-neutral-800 transition-colors"
-          >
-            <span className="text-xl">📚</span>
-            {sidebarOpen && <span className="ml-3">Products</span>}
-          </Link>
-          <Link
-            href="/admin/orders"
-            className="flex items-center px-6 py-3 hover:bg-neutral-800 transition-colors"
-          >
-            <span className="text-xl">🛒</span>
-            {sidebarOpen && <span className="ml-3">Orders</span>}
-          </Link>
-          <Link
-            href="/admin/customers"
-            className="flex items-center px-6 py-3 hover:bg-neutral-800 transition-colors"
-          >
-            <span className="text-xl">👥</span>
-            {sidebarOpen && <span className="ml-3">Customers</span>}
-          </Link>
-          <Link
-            href="/admin/blog"
-            className="flex items-center px-6 py-3 hover:bg-neutral-800 transition-colors"
-          >
-            <span className="text-xl">✍️</span>
-            {sidebarOpen && <span className="ml-3">Blog</span>}
-          </Link>
-          <Link
-            href="/admin/settings/general"
-            className="flex items-center px-6 py-3 hover:bg-neutral-800 transition-colors"
-          >
-            <span className="text-xl">⚙️</span>
-            {sidebarOpen && <span className="ml-3">Settings</span>}
-          </Link>
-        </nav>
-      </aside>
+      </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome, Wagner! 👋</h1>
-            <p className="text-neutral-400">Here&apos;s what&apos;s happening with your ebook platform</p>
-          </div>
-
-          {/* Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-neutral-400">
-                  Total Revenue
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-[#00ff41]">
-                  ${totalRevenue.toFixed(2)}
-                </div>
-                <p className="text-xs text-neutral-500 mt-2">USD</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-neutral-400">
-                  Total Orders
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">{totalOrders}</div>
-                <p className="text-xs text-neutral-500 mt-2">All time</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-neutral-400">
-                  Total Customers
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">{totalCustomers}</div>
-                <p className="text-xs text-neutral-500 mt-2">Unique customers</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-neutral-400">
-                  Total Products
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">{totalProducts}</div>
-                <p className="text-xs text-neutral-500 mt-2">Active ebooks</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Orders Table */}
-          <Card className="bg-neutral-900 border-neutral-800 mb-8">
-            <CardHeader>
-              <CardTitle className="text-xl">Recent Orders</CardTitle>
+      <main className="container mx-auto p-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
+                <CreditCard className="w-4 h-4" />
+                Total Revenue
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-neutral-800">
-                      <th className="text-left py-3 px-4 text-neutral-400 font-medium">
-                        Order ID
-                      </th>
-                      <th className="text-left py-3 px-4 text-neutral-400 font-medium">
-                        Customer
-                      </th>
-                      <th className="text-left py-3 px-4 text-neutral-400 font-medium">
-                        Product
-                      </th>
-                      <th className="text-left py-3 px-4 text-neutral-400 font-medium">
-                        Amount
-                      </th>
-                      <th className="text-left py-3 px-4 text-neutral-400 font-medium">
-                        Status
-                      </th>
-                      <th className="text-left py-3 px-4 text-neutral-400 font-medium">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MOCK_ORDERS.map((order) => (
-                      <tr key={order.id} className="border-b border-neutral-800 hover:bg-neutral-800/50">
-                        <td className="py-3 px-4 font-mono">{order.id}</td>
-                        <td className="py-3 px-4">{order.customerName}</td>
-                        <td className="py-3 px-4 text-neutral-300">{order.product}</td>
-                        <td className="py-3 px-4">${order.amount.toFixed(2)}</td>
-                        <td className="py-3 px-4">
-                          <span className={`capitalize ${getStatusColor(order.status)}`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-neutral-400">{order.date}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="text-3xl font-bold text-orange-500">
+                ${stats.totalRevenue.toFixed(2)}
               </div>
             </CardContent>
           </Card>
 
-          {/* Top Selling Products */}
-          <Card className="bg-neutral-900 border-neutral-800 mb-8">
-            <CardHeader>
-              <CardTitle className="text-xl">Top Selling Products</CardTitle>
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                E-book Purchases
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {topProducts.map((product, index) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between p-4 bg-neutral-800 rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-8 h-8 bg-[#00ff41] text-black rounded-full flex items-center justify-center font-bold">
-                        {index + 1}
-                      </div>
+              <div className="text-3xl font-bold text-white">{stats.totalPurchases}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
+                <Crown className="w-4 h-4" />
+                Active Subscriptions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{stats.totalSubscriptions}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Total Users
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{stats.totalUsers}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Content Management */}
+        <Card className="bg-neutral-900 border-neutral-800 mb-8">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-orange-500" />
+              E-book Content Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-neutral-400 mb-4">
+              E-books and chapters are managed through Sanity Studio, a dedicated content management system.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <a
+                href="https://www.sanity.io/manage"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Open Sanity Studio
+                <ExternalLink className="w-4 h-4" />
+              </a>
+              <div className="text-sm text-neutral-500 flex items-center">
+                Or run locally: <code className="ml-2 px-2 py-1 bg-neutral-800 rounded">npx sanity dev</code>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Purchases */}
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader>
+              <CardTitle className="text-xl">Recent Purchases</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {purchases.length === 0 ? (
+                <p className="text-neutral-500 text-center py-8">No purchases yet</p>
+              ) : (
+                <div className="space-y-4">
+                  {purchases.map((purchase) => (
+                    <div
+                      key={purchase.id}
+                      className="flex justify-between items-center p-3 bg-neutral-800 rounded-lg"
+                    >
                       <div>
-                        <h3 className="font-medium">{product.name}</h3>
-                        <p className="text-sm text-neutral-400">{product.author}</p>
+                        <p className="font-medium">
+                          {purchase.profiles?.full_name || 'Unknown User'}
+                        </p>
+                        <p className="text-sm text-neutral-400">
+                          {new Date(purchase.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-orange-500">
+                          {purchase.currency === 'BRL' ? 'R$' : '$'}
+                          {(purchase.amount_paid / 100).toFixed(2)}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-[#00ff41]">${product.price_usd}</p>
-                      <p className="text-xs text-neutral-400">{product.total_reviews} reviews</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/admin/products">
-              <Button
-                variant="filled"
-                className="w-full h-24 text-lg bg-[#00ff41] hover:bg-[#00cc33] text-black"
-              >
-                📚 Manage Products
-              </Button>
-            </Link>
-            <Link href="/admin/blog">
-              <Button
-                variant="filled"
-                className="w-full h-24 text-lg bg-[#00ff41] hover:bg-[#00cc33] text-black"
-              >
-                ✍️ Manage Blog
-              </Button>
-            </Link>
-            <Link href="/admin/settings/general">
-              <Button
-                variant="filled"
-                className="w-full h-24 text-lg bg-[#00ff41] hover:bg-[#00cc33] text-black"
-              >
-                ⚙️ Settings
-              </Button>
-            </Link>
-          </div>
+          {/* Recent Subscriptions */}
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader>
+              <CardTitle className="text-xl">Recent Subscriptions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {subscriptions.length === 0 ? (
+                <p className="text-neutral-500 text-center py-8">No subscriptions yet</p>
+              ) : (
+                <div className="space-y-4">
+                  {subscriptions.map((sub) => (
+                    <div
+                      key={sub.id}
+                      className="flex justify-between items-center p-3 bg-neutral-800 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium">
+                          {sub.profiles?.full_name || 'Unknown User'}
+                        </p>
+                        <p className="text-sm text-neutral-400">
+                          {sub.plan_type} plan
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            sub.status === 'active'
+                              ? 'bg-green-500/20 text-green-500'
+                              : 'bg-neutral-700 text-neutral-400'
+                          }`}
+                        >
+                          {sub.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Links */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a
+            href="https://dashboard.stripe.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-orange-500/50 transition-colors flex items-center gap-3"
+          >
+            <CreditCard className="w-6 h-6 text-orange-500" />
+            <div>
+              <p className="font-medium">Stripe Dashboard</p>
+              <p className="text-sm text-neutral-400">Manage payments</p>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-auto text-neutral-500" />
+          </a>
+
+          <a
+            href={process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('.supabase.co', '.supabase.com') || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-orange-500/50 transition-colors flex items-center gap-3"
+          >
+            <Users className="w-6 h-6 text-orange-500" />
+            <div>
+              <p className="font-medium">Supabase Dashboard</p>
+              <p className="text-sm text-neutral-400">Manage users & data</p>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-auto text-neutral-500" />
+          </a>
+
+          <Link
+            href="/"
+            className="p-4 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-orange-500/50 transition-colors flex items-center gap-3"
+          >
+            <BookOpen className="w-6 h-6 text-orange-500" />
+            <div>
+              <p className="font-medium">View Store</p>
+              <p className="text-sm text-neutral-400">See public site</p>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-auto text-neutral-500" />
+          </Link>
         </div>
       </main>
     </div>

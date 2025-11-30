@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { i18n } from './i18n-config'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
 import Negotiator from 'negotiator'
+import { updateSession, checkAdminAccess } from '@/lib/supabase/middleware'
 
 function getLocale(request: NextRequest): string {
   const negotiatorHeaders: Record<string, string> = {}
@@ -26,8 +27,37 @@ function getLocale(request: NextRequest): string {
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+
+  // Skip Supabase for static assets
+  const isStaticAsset = pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname.includes('.')
+
+  // Admin route protection
+  if (pathname.startsWith('/admin')) {
+    return checkAdminAccess(request)
+  }
+
+  // Update Supabase session for all other routes
+  if (!isStaticAsset) {
+    const { response } = await updateSession(request)
+
+    // Handle locale redirect
+    const pathnameIsMissingLocale = i18n.locales.every(
+      (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+    )
+
+    if (pathnameIsMissingLocale) {
+      const locale = getLocale(request)
+      return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url))
+    }
+
+    return response
+  }
+
+  // Locale redirect for paths without locale
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   )
@@ -37,4 +67,6 @@ export function middleware(request: NextRequest) {
   }
 }
 
-export const config = { matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'] }
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
+}

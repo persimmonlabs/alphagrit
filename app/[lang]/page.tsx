@@ -1,55 +1,16 @@
 import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import AlphaGritLandingTemplate from '@/components/templates/AlphaGritLandingTemplate';
-import { serverApiClient } from '@/lib/api-client-server';
+import { getEbooks } from '@/lib/sanity/queries';
+import { urlFor } from '@/lib/sanity/client';
 
-// Define simple interfaces for the data types, ideally these would be imported from a shared types file.
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price_brl: number;
-  price_usd: number;
-  status: string;
-  is_featured: boolean;
-  cover_image_url?: string;
-}
-
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  cover_image_url?: string;
-  published_at?: string;
-}
-
-interface SiteConfigSetting {
-  key: string;
-  value: any;
-  value_type: string;
-  is_public: boolean;
-}
-
-interface FeatureFlag {
-  key: string;
-  is_enabled: boolean;
-}
+export const dynamic = 'force-dynamic';
 
 /**
  * AlphaGrit Home Page
  *
  * Main landing page using the AlphaGrit Landing Template.
- * All content is managed through i18n dictionaries and configuration files.
- * Dynamic data from the FastAPI backend is fetched here and passed down.
- *
- * Key Benefits:
- * - Component-based architecture
- * - Centralized design tokens
- * - i18n support (EN/PT)
- * - No visual changes from original design
- * - Reusable components for future pages
- * - Server-side data fetching for dynamic content
+ * Fetches ebooks from Sanity CMS.
  */
 export default async function Home({
   params: { lang },
@@ -59,35 +20,32 @@ export default async function Home({
   // Load internationalized static content
   const dict = await getDictionary(lang);
 
-  // Fetch dynamic data from FastAPI backend
-  let featuredProducts: Product[] = [];
-  let recentBlogPosts: BlogPost[] = [];
-  let siteSettings: SiteConfigSetting[] = [];
-  let featureFlags: FeatureFlag[] = [];
+  // Fetch ebooks from Sanity
+  let featuredProducts: any[] = [];
 
   try {
-    featuredProducts = await serverApiClient<Product[]>('/products/?is_featured=true');
+    const ebooks = await getEbooks();
+    // Transform Sanity ebooks to the format expected by FeaturedProduct
+    featuredProducts = ebooks.slice(0, 3).map(ebook => ({
+      id: ebook._id,
+      name: lang === 'pt' && ebook.title.pt ? ebook.title.pt : ebook.title.en,
+      slug: ebook.slug.current,
+      price_brl: ebook.price_brl || 0,
+      price_usd: ebook.price_usd || 0,
+      status: ebook.status,
+      is_featured: true,
+      cover_image_url: ebook.coverImage ? urlFor(ebook.coverImage).width(400).height(533).url() : undefined,
+      description: lang === 'pt' && ebook.description?.pt ? ebook.description.pt : ebook.description?.en,
+      chapters_count: ebook.chapters?.filter(ch => ch.isPublished).length || 0,
+    }));
   } catch (error) {
-    console.error('Error fetching featured products:', error);
+    console.error('Error fetching ebooks from Sanity:', error);
   }
 
-  try {
-    recentBlogPosts = await serverApiClient<BlogPost[]>('/content/blog-posts/?status=published');
-  } catch (error) {
-    console.error('Error fetching recent blog posts:', error);
-  }
-
-  try {
-    siteSettings = await serverApiClient<SiteConfigSetting[]>('/content/site-config/');
-  } catch (error) {
-    console.error('Error fetching site settings:', error);
-  }
-
-  try {
-    featureFlags = await serverApiClient<FeatureFlag[]>('/content/feature-flags/');
-  } catch (error) {
-    console.error('Error fetching feature flags:', error);
-  }
+  // Empty arrays for features we don't use yet
+  const recentBlogPosts: any[] = [];
+  const siteSettings: any[] = [];
+  const featureFlags: any[] = [];
 
   return (
     <AlphaGritLandingTemplate

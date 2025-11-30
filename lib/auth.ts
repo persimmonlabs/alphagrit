@@ -1,59 +1,29 @@
 /**
- * Admin Authentication Utilities
- * Mock authentication system using localStorage for demo purposes
+ * @deprecated This file is deprecated. Admin authentication now uses Supabase.
+ * See app/admin/login/page.tsx for the actual implementation.
+ *
+ * These functions are kept for backwards compatibility but should not be used.
  */
 
-/**
- * Stores the admin authentication token in localStorage
- * @param token - The authentication token to store
- */
-export function setAdminToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('admin_token', token);
-  }
+export function setAdminToken(_token: string): void {
+  console.warn('[DEPRECATED] setAdminToken is deprecated. Use Supabase auth instead.')
 }
 
-/**
- * Retrieves the admin authentication token from localStorage
- * @returns The stored token or null if not authenticated
- */
 export function getAdminToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('admin_token');
-  }
-  return null;
+  console.warn('[DEPRECATED] getAdminToken is deprecated. Use Supabase auth instead.')
+  return null
 }
 
-/**
- * Checks if the admin is currently authenticated
- * @returns true if authenticated, false otherwise
- */
 export function isAdminAuthenticated(): boolean {
-  return getAdminToken() !== null;
+  console.warn('[DEPRECATED] isAdminAuthenticated is deprecated. Use Supabase auth instead.')
+  return false
 }
 
-/**
- * Mock admin login function for demo purposes
- * Production implementation should use secure API endpoints
- * @param email - Admin email address
- * @param password - Admin password
- * @returns true if login successful, false otherwise
- */
-export function mockAdminLogin(email: string, password: string): boolean {
-  // Demo credentials: admin@alphagrit.com / password123
-  // TODO: Replace with actual API authentication in production
-  if (email === 'admin@alphagrit.com' && password === 'password123') {
-    setAdminToken('mock_admin_token_' + Date.now());
-    return true;
-  }
-  return false;
+export function mockAdminLogin(_email: string, _password: string): boolean {
+  console.warn('[DEPRECATED] mockAdminLogin is deprecated. Use Supabase auth instead.')
+  return false
 }
 
-/**
- * Logs out the admin user by removing the authentication token
- */
 export function logoutAdmin(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('admin_token');
-  }
+  console.warn('[DEPRECATED] logoutAdmin is deprecated. Use Supabase auth instead.')
 }
