@@ -106,6 +106,14 @@ export default function LoginPage({
                 placeholder="••••••••"
               />
             </div>
+            <div className="text-right">
+              <Link
+                href={`/${lang}/auth/reset-password`}
+                className="text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                {lang === 'pt' ? 'Esqueceu a senha?' : 'Forgot password?'}
+              </Link>
+            </div>
           </div>
 
           <Button
