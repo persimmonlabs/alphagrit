@@ -8,6 +8,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
+ENV PORT=3000
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD npm start -- -H 0.0.0.0 -p ${PORT}
