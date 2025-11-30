@@ -16,7 +16,18 @@ from sqlalchemy import text
 
 from src.settings import get_settings
 from src.infrastructure.database import SessionLocal, engine
+from src.infrastructure.base import Base
 from src.api.v1.api import api_router
+
+# Import all models to register them with Base.metadata
+from src.infrastructure.repositories.sqlalchemy_product_repository import ProductORM, CategoryORM
+from src.infrastructure.repositories.sqlalchemy_order_repository import CartItemORM, OrderORM, OrderItemORM, DownloadLinkORM
+from src.infrastructure.repositories.sqlalchemy_user_repository import ProfileORM
+from src.infrastructure.repositories.sqlalchemy_content_repository import BlogPostORM, FaqORM, SiteConfigSettingORM, FeatureFlagORM
+from src.infrastructure.repositories.sqlalchemy_review_repository import ReviewORM
+from src.infrastructure.repositories.sqlalchemy_refund_repository import RefundRequestORM
+from src.infrastructure.repositories.sqlalchemy_notification_repository import EmailLogORM
+from src.infrastructure.repositories.sqlalchemy_ebook_repository import EbookORM, EbookChapterORM, EbookSectionORM, EbookContentBlockORM, EbookReadingProgressORM, EbookAccessORM
 
 # Configure logging
 settings = get_settings()
@@ -36,13 +47,17 @@ async def lifespan(app: FastAPI):
     """
     logger.info(f"Starting Alpha Grit API ({settings.ENVIRONMENT})")
 
-    # Startup: verify database connection
+    # Startup: verify database connection and create tables
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         logger.info("Database connection verified")
+
+        # Create all tables if they don't exist
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created/verified")
     except Exception as e:
-        logger.error(f"Database connection failed: {e}")
+        logger.error(f"Database setup failed: {e}")
         # Don't fail startup, let health check handle it
 
     yield
