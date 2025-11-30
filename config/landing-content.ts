@@ -86,10 +86,10 @@ export const defaultLandingContent: LandingPageContent = {
   navigation: {
     logo: 'ALPHAGRIT',
     links: [
-      { label: '[MANIFESTO]', href: '/en/blog' },
-      { label: '[PRODUCTS]', href: '/en/products' },
+      { label: '[BLOG]', href: '/en/blog' },
+      { label: '[EBOOKS]', href: '/en/ebooks' },
     ],
-    adminLink: { label: '[ADMIN]', href: '/admin/login' },
+    adminLink: { label: '[LOGIN]', href: '/en/auth/login' },
     languages: [
       { code: 'en', label: 'EN' },
       { code: 'pt', label: 'PT' },
@@ -102,8 +102,8 @@ export const defaultLandingContent: LandingPageContent = {
     description: 'The modern world is designed to keep you weak. Overworked. Underpaid. Addicted. Broke. Exhausted. Disconnected from your body, trapped by dopamine loops, and enslaved by a system that profits from your mediocrity.',
     cta_primary: 'Initialize Protocol',
     cta_secondary: 'View Catalog',
-    cta_primary_href: '/en/products',
-    cta_secondary_href: '/en/products',
+    cta_primary_href: '/en/auth/signup',
+    cta_secondary_href: '/en/ebooks',
   },
 
   trinity: {
@@ -184,15 +184,18 @@ export function mergeLandingContent(
       logo: dict.navigation?.logo || defaultLandingContent.navigation.logo,
       links: [
         {
-          label: dict.nav?.manifesto || defaultLandingContent.navigation.links[0].label,
+          label: dict.nav?.blog || '[BLOG]',
           href: buildRoute('/blog')
         },
         {
-          label: dict.nav?.products || defaultLandingContent.navigation.links[1].label,
-          href: buildRoute('/products')
+          label: dict.nav?.ebooks || '[EBOOKS]',
+          href: buildRoute('/ebooks')
         },
       ],
-      adminLink: defaultLandingContent.navigation.adminLink,
+      adminLink: {
+        label: dict.nav?.login || '[LOGIN]',
+        href: buildRoute('/auth/login')
+      },
       languages: defaultLandingContent.navigation.languages,
     },
 
@@ -202,8 +205,8 @@ export function mergeLandingContent(
       description: dict.hero?.description || defaultLandingContent.hero.description,
       cta_primary: dict.hero?.cta_primary || defaultLandingContent.hero.cta_primary,
       cta_secondary: dict.hero?.cta_secondary || defaultLandingContent.hero.cta_secondary,
-      cta_primary_href: buildRoute('/products'),
-      cta_secondary_href: buildRoute('/products'),
+      cta_primary_href: buildRoute('/auth/signup'),
+      cta_secondary_href: buildRoute('/ebooks'),
     },
 
     trinity: {

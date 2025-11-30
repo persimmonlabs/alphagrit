@@ -29,7 +29,7 @@ export default function LoginPage({
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -40,10 +40,23 @@ export default function LoginPage({
       return
     }
 
-    // Redirect to dashboard or original destination
-    const redirectTo = searchParams.redirect || `/${lang}/dashboard`
-    router.push(redirectTo)
-    router.refresh()
+    // Check if user is admin
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      // Redirect admin to admin panel, regular users to dashboard
+      if (profile?.role === 'admin') {
+        router.push('/admin')
+      } else {
+        const redirectTo = searchParams.redirect || `/${lang}/dashboard`
+        router.push(redirectTo)
+      }
+      router.refresh()
+    }
   }
 
   const handleGoogleLogin = async () => {

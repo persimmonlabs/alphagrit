@@ -3,9 +3,8 @@
 import React from 'react';
 import AlphaGritNavigation from '@/components/organisms/AlphaGritNavigation';
 import AlphaGritHero from '@/components/organisms/AlphaGritHero';
-import TrinityCards from '@/components/organisms/TrinityCards';
 import FeaturedProduct from '@/components/organisms/FeaturedProduct';
-import RecentBlogPosts from '@/components/organisms/RecentBlogPosts'; // NEW IMPORT
+import RecentBlogPosts from '@/components/organisms/RecentBlogPosts';
 import AlphaGritFooter from '@/components/organisms/AlphaGritFooter';
 import { mergeLandingContent, LandingPageContent } from '@/config/landing-content';
 
@@ -88,9 +87,6 @@ export default function AlphaGritLandingTemplate({
       <main>
         {/* Hero Section */}
         <AlphaGritHero content={landingContent.hero} siteSettings={siteSettings} featureFlags={featureFlags} />
-
-        {/* Trinity Cards Section */}
-        <TrinityCards content={landingContent.trinity} />
 
         {/* Featured Product Section */}
         <FeaturedProduct content={landingContent.featured} products={featuredProducts} />
