@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
-import Link from 'next/link'
+import { Check, X } from 'lucide-react'
 
 export default function UpdatePasswordPage() {
   const router = useRouter()
@@ -17,12 +17,30 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
+  // Password validation
+  const passwordChecks = useMemo(() => ({
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasDigit: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(password),
+  }), [password])
+
+  const isPasswordValid = Object.values(passwordChecks).every(Boolean)
+
+  const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
+    <div className={`flex items-center gap-2 text-xs ${met ? 'text-green-500' : 'text-gray-500'}`}>
+      {met ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+      <span>{text}</span>
+    </div>
+  )
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
-    if (password.length < 6) {
-      setError(isPt ? 'A senha deve ter pelo menos 6 caracteres.' : 'Password must be at least 6 characters.')
+    if (!isPasswordValid) {
+      setError(isPt ? 'Por favor, atenda todos os requisitos da senha.' : 'Please meet all password requirements.')
       return
     }
 
@@ -93,9 +111,33 @@ export default function UpdatePasswordPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
               className="w-full px-4 py-3 bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
+            <div className="mt-3 space-y-1.5 p-3 bg-muted/50 rounded-lg border border-border">
+              <p className="text-xs text-muted-foreground mb-2">
+                {isPt ? 'Requisitos da senha:' : 'Password requirements:'}
+              </p>
+              <PasswordRequirement
+                met={passwordChecks.minLength}
+                text={isPt ? 'Mínimo 8 caracteres' : 'At least 8 characters'}
+              />
+              <PasswordRequirement
+                met={passwordChecks.hasUppercase}
+                text={isPt ? 'Uma letra maiúscula (A-Z)' : 'One uppercase letter (A-Z)'}
+              />
+              <PasswordRequirement
+                met={passwordChecks.hasLowercase}
+                text={isPt ? 'Uma letra minúscula (a-z)' : 'One lowercase letter (a-z)'}
+              />
+              <PasswordRequirement
+                met={passwordChecks.hasDigit}
+                text={isPt ? 'Um número (0-9)' : 'One number (0-9)'}
+              />
+              <PasswordRequirement
+                met={passwordChecks.hasSpecial}
+                text={isPt ? 'Um caractere especial (!@#$%...)' : 'One special character (!@#$%...)'}
+              />
+            </div>
           </div>
 
           <div>
@@ -115,7 +157,7 @@ export default function UpdatePasswordPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isPasswordValid}
             className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {loading

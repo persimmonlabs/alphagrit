@@ -1,9 +1,11 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, CreditCard, Crown, ExternalLink, LogOut } from 'lucide-react';
@@ -40,10 +42,7 @@ export default function AdminDashboard() {
     totalUsers: 0,
   });
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createClient();
 
   useEffect(() => {
     checkAdminAndLoadData();
@@ -105,7 +104,7 @@ export default function AdminDashboard() {
         .from('purchases')
         .select('amount_paid');
 
-      const totalRevenue = (revenueData || []).reduce((sum, p) => sum + (p.amount_paid || 0), 0) / 100;
+      const totalRevenue = (revenueData || []).reduce((sum: number, p: { amount_paid: number }) => sum + (p.amount_paid || 0), 0) / 100;
 
       setPurchases(purchasesData || []);
       setSubscriptions(subscriptionsData || []);

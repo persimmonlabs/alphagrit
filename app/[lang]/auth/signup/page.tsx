@@ -1,12 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+export const dynamic = 'force-dynamic'
+
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Check, X } from 'lucide-react'
 
 export default function SignupPage({
   params: { lang },
@@ -17,17 +20,34 @@ export default function SignupPage({
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const isPt = lang === 'pt'
+
+  // Password validation
+  const passwordChecks = useMemo(() => ({
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasDigit: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(password),
+  }), [password])
+
+  const isPasswordValid = Object.values(passwordChecks).every(Boolean)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signUp({
+    if (!isPasswordValid) {
+      setError(isPt ? 'Por favor, atenda todos os requisitos da senha.' : 'Please meet all password requirements.')
+      setLoading(false)
+      return
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,18 +55,20 @@ export default function SignupPage({
           full_name: fullName,
           preferred_language: lang,
         },
-        emailRedirectTo: `${window.location.origin}/${lang}/auth/callback`,
       },
     })
 
-    if (error) {
-      setError(error.message)
+    if (signUpError) {
+      setError(signUpError.message)
       setLoading(false)
       return
     }
 
-    setSuccess(true)
-    setLoading(false)
+    // Auto sign-in after signup (no email confirmation required)
+    if (data.user) {
+      router.push(`/${lang}/dashboard`)
+      router.refresh()
+    }
   }
 
   const handleGoogleSignup = async () => {
@@ -62,42 +84,22 @@ export default function SignupPage({
     }
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black px-4">
-        <div className="w-full max-w-md text-center space-y-4">
-          <div className="w-16 h-16 mx-auto bg-green-500/10 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-white">
-            {lang === 'pt' ? 'Verifique seu email' : 'Check your email'}
-          </h1>
-          <p className="text-gray-400">
-            {lang === 'pt'
-              ? 'Enviamos um link de confirmação para o seu email. Clique no link para ativar sua conta.'
-              : 'We sent a confirmation link to your email. Click the link to activate your account.'}
-          </p>
-          <Link href={`/${lang}`}>
-            <Button variant="ghost" className="mt-4 border border-gray-700">
-              {lang === 'pt' ? 'Voltar para início' : 'Back to home'}
-            </Button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
+    <div className={`flex items-center gap-2 text-xs ${met ? 'text-green-500' : 'text-gray-500'}`}>
+      {met ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+      <span>{text}</span>
+    </div>
+  )
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white">
-            {lang === 'pt' ? 'Criar Conta' : 'Create Account'}
+            {isPt ? 'Criar Conta' : 'Create Account'}
           </h1>
           <p className="mt-2 text-gray-400">
-            {lang === 'pt'
+            {isPt
               ? 'Crie sua conta para começar'
               : 'Create your account to get started'}
           </p>
@@ -113,7 +115,7 @@ export default function SignupPage({
           <div className="space-y-4">
             <div>
               <Label htmlFor="fullName">
-                {lang === 'pt' ? 'Nome completo' : 'Full name'}
+                {isPt ? 'Nome completo' : 'Full name'}
               </Label>
               <Input
                 id="fullName"
@@ -122,7 +124,7 @@ export default function SignupPage({
                 onChange={(e) => setFullName(e.target.value)}
                 required
                 className="mt-1"
-                placeholder={lang === 'pt' ? 'Seu nome' : 'Your name'}
+                placeholder={isPt ? 'Seu nome' : 'Your name'}
               />
             </div>
 
@@ -141,7 +143,7 @@ export default function SignupPage({
 
             <div>
               <Label htmlFor="password">
-                {lang === 'pt' ? 'Senha' : 'Password'}
+                {isPt ? 'Senha' : 'Password'}
               </Label>
               <Input
                 id="password"
@@ -149,24 +151,45 @@ export default function SignupPage({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
                 className="mt-1"
                 placeholder="••••••••"
               />
-              <p className="mt-1 text-xs text-gray-500">
-                {lang === 'pt' ? 'Mínimo 6 caracteres' : 'Minimum 6 characters'}
-              </p>
+              <div className="mt-3 space-y-1.5 p-3 bg-gray-900/50 rounded-lg border border-gray-800">
+                <p className="text-xs text-gray-400 mb-2">
+                  {isPt ? 'Requisitos da senha:' : 'Password requirements:'}
+                </p>
+                <PasswordRequirement
+                  met={passwordChecks.minLength}
+                  text={isPt ? 'Mínimo 8 caracteres' : 'At least 8 characters'}
+                />
+                <PasswordRequirement
+                  met={passwordChecks.hasUppercase}
+                  text={isPt ? 'Uma letra maiúscula (A-Z)' : 'One uppercase letter (A-Z)'}
+                />
+                <PasswordRequirement
+                  met={passwordChecks.hasLowercase}
+                  text={isPt ? 'Uma letra minúscula (a-z)' : 'One lowercase letter (a-z)'}
+                />
+                <PasswordRequirement
+                  met={passwordChecks.hasDigit}
+                  text={isPt ? 'Um número (0-9)' : 'One number (0-9)'}
+                />
+                <PasswordRequirement
+                  met={passwordChecks.hasSpecial}
+                  text={isPt ? 'Um caractere especial (!@#$%...)' : 'One special character (!@#$%...)'}
+                />
+              </div>
             </div>
           </div>
 
           <Button
             type="submit"
             className="w-full"
-            disabled={loading}
+            disabled={loading || !isPasswordValid}
           >
             {loading
-              ? (lang === 'pt' ? 'Criando conta...' : 'Creating account...')
-              : (lang === 'pt' ? 'Criar Conta' : 'Create Account')}
+              ? (isPt ? 'Criando conta...' : 'Creating account...')
+              : (isPt ? 'Criar Conta' : 'Create Account')}
           </Button>
 
           <div className="relative">
@@ -175,7 +198,7 @@ export default function SignupPage({
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-black px-2 text-gray-400">
-                {lang === 'pt' ? 'Ou continue com' : 'Or continue with'}
+                {isPt ? 'Ou continue com' : 'Or continue with'}
               </span>
             </div>
           </div>
@@ -209,12 +232,12 @@ export default function SignupPage({
         </form>
 
         <p className="text-center text-gray-400">
-          {lang === 'pt' ? 'Já tem uma conta?' : 'Already have an account?'}{' '}
+          {isPt ? 'Já tem uma conta?' : 'Already have an account?'}{' '}
           <Link
             href={`/${lang}/auth/login`}
             className="text-orange-500 hover:text-orange-400"
           >
-            {lang === 'pt' ? 'Entrar' : 'Sign In'}
+            {isPt ? 'Entrar' : 'Sign In'}
           </Link>
         </p>
       </div>
