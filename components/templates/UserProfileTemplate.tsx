@@ -53,7 +53,7 @@ export default function UserProfileTemplate({
 
     try {
       const updatedProfile = await apiClient.patch<UserProfile>(
-        `/users/${userProfile.id}`,
+        `/users/users/${userProfile.id}`,
         {
           full_name: userProfile.full_name,
           email: userProfile.email,

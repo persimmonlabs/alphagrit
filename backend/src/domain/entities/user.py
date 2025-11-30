@@ -15,7 +15,7 @@ class CurrencyType(str, Enum):
 
 @dataclass
 class Profile:
-    id: str = field(default_factory=lambda: str(uuid.uuid4())) # Assuming this is now the primary ID
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     email: str = ""
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
@@ -24,6 +24,10 @@ class Profile:
     preferred_currency: CurrencyType = CurrencyType.USD
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
+    # Authentication fields
+    password_hash: Optional[str] = None
+    refresh_token_hash: Optional[str] = None
+    last_login_at: Optional[datetime] = None
 
     def __post_init__(self):
         if not self.email:

@@ -72,7 +72,7 @@ export default async function Home({
   }
 
   try {
-    recentBlogPosts = await serverApiClient<BlogPost[]>('/blog-posts/?status=published');
+    recentBlogPosts = await serverApiClient<BlogPost[]>('/content/blog-posts/?status=published');
   } catch (error) {
     console.error('Error fetching recent blog posts:', error);
   }

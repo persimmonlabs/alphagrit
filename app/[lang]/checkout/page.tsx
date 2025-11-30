@@ -42,7 +42,7 @@ export default async function CheckoutPage({
   let cartItems: CartItem[] = [];
 
   try {
-    cartItems = await serverApiClient<CartItem[]>(`/orders/${userId}/items`);
+    cartItems = await serverApiClient<CartItem[]>(`/orders/cart/${userId}/items`);
     if (cartItems.length === 0) {
       // If cart is empty, redirect to cart page or show a message
       // For now, we'll let the template handle the empty cart state

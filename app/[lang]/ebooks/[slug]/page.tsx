@@ -68,7 +68,7 @@ export default async function EbookOverviewPage({
 
   try {
     // Fetch product by slug
-    const productsResponse = await serverApiClient<ProductResponse[]>(`/products/products/?slug=${slug}`);
+    const productsResponse = await serverApiClient<ProductResponse[]>(`/products/?slug=${slug}`);
     if (productsResponse.length === 0) {
       notFound();
     }

@@ -3,6 +3,7 @@ from typing import List, Optional
 from src.api.v1.schemas import CartItemResponse, CartItemCreate, CartItemUpdate, OrderResponse, OrderCreate, DownloadLinkResponse
 from src.api.v1.dependencies import get_order_management_service
 from src.application.services.order_management_service import OrderManagementService
+from src.domain.entities.order import OrderStatus  # Needed for status filtering
 
 router = APIRouter()
 

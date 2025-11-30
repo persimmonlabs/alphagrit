@@ -43,7 +43,7 @@ export default async function ProductsPage({
   }
 
   try {
-    categories = await serverApiClient<Category[]>('/categories/');
+    categories = await serverApiClient<Category[]>('/products/categories');
   } catch (error) {
     console.error('Error fetching categories:', error);
   }

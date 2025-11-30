@@ -31,13 +31,8 @@ export const serverApiClient = async <T>(
     }
 
     // Map frontend endpoints to backend endpoints
+    // Backend routes: /products/, /products/categories/, /users/users/, /reviews/reviews/, /content/blog-posts/
     let apiEndpoint = endpoint
-    if (endpoint.startsWith('/products/') && !endpoint.includes('/products/products/')) {
-      apiEndpoint = endpoint.replace('/products/', '/products/products/')
-    }
-    if (endpoint.startsWith('/categories/') && !endpoint.includes('/products/categories/')) {
-      apiEndpoint = endpoint.replace('/categories/', '/products/categories/')
-    }
 
     const response = await fetch(`${API_BASE_URL}${apiEndpoint}`, {
       headers: defaultHeaders,

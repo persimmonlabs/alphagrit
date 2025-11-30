@@ -1,14 +1,13 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.engine import Engine
 from typing import Generator
 
-from src.infrastructure.base import Base # Import Base from the dedicated file
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///./app.db" # Placeholder, update as needed
+from src.infrastructure.base import Base  # Import Base from the dedicated file
+from src import settings
 
-# For local development and testing, you might use SQLite
-# DATABASE_URL = "sqlite:///./test.db"
-
-engine: Engine = create_engine(DATABASE_URL)
+# Enable SQLite thread check bypass only when using SQLite; pre-ping for stale connections in prod DBs.
+connect_args = {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
+engine: Engine = create_engine(settings.DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -133,7 +133,7 @@ export default function ProductDetailPageTemplate({
     const userId = currentUser?.id || 'anonymous'; // Fallback for anonymous reviews if API supports
 
     try {
-      const newReview = await apiClient.post<Review>(`/reviews/`, {
+      const newReview = await apiClient.post<Review>(`/reviews/reviews/`, {
         product_id: product.id,
         user_id: userId,
         content: reviewContent,

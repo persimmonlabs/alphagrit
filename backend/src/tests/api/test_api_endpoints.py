@@ -1,71 +1,20 @@
 """
 Comprehensive API endpoint tests for Alpha Grit backend.
 Tests all major endpoints with success cases, error cases, and validation.
-"""
-import sys
-import os
-import uuid
-from datetime import datetime
 
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+Uses shared conftest.py for database setup and isolation.
+"""
+import uuid
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
-from src.main import app
-from src.infrastructure.base import Base
-from src.api.v1.dependencies import get_db
-
-# Import all ORM models to register them with Base BEFORE creating tables
-from src.infrastructure.repositories.sqlalchemy_product_repository import ProductORM, CategoryORM
-from src.infrastructure.repositories.sqlalchemy_user_repository import ProfileORM
-from src.infrastructure.repositories.sqlalchemy_order_repository import CartItemORM, OrderORM, OrderItemORM, DownloadLinkORM
-from src.infrastructure.repositories.sqlalchemy_content_repository import BlogPostORM, FaqORM, SiteConfigORM, FeatureFlagORM
-from src.infrastructure.repositories.sqlalchemy_review_repository import ReviewORM
-from src.infrastructure.repositories.sqlalchemy_refund_repository import RefundRequestORM
-from src.infrastructure.repositories.sqlalchemy_notification_repository import EmailLogORM
-
-# Test database setup - use file-based instead of in-memory to avoid thread isolation issues
-import tempfile
-test_db_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-test_db_path = test_db_file.name
-test_db_file.close()
-
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{test_db_path}"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create all tables AFTER importing all ORM models
-Base.metadata.create_all(bind=engine)
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-
-client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def reset_db():
-    """Reset database before each test"""
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    yield
-    # Cleanup after test
-    Base.metadata.drop_all(bind=engine)
+# Note: client and reset_database fixtures are provided by conftest.py
 
 
 @pytest.fixture
-def test_category(reset_db):
+def test_category(client):
     """Create a test category"""
-    resp = client.post("/api/v1/products/categories/", json={
+    resp = client.post("/api/v1/products/categories", json={
         "name": "Test Category",
         "slug": "test-category",
         "description": "Test",
@@ -76,7 +25,7 @@ def test_category(reset_db):
 
 
 @pytest.fixture
-def test_user(reset_db):
+def test_user(client):
     """Create a test user"""
     resp = client.post("/api/v1/users/users/", json={
         "email": "test@example.com",
@@ -86,9 +35,9 @@ def test_user(reset_db):
 
 
 @pytest.fixture
-def test_product(test_category):
+def test_product(client, test_category):
     """Create a test product"""
-    resp = client.post("/api/v1/products/products/", json={
+    resp = client.post("/api/v1/products/", json={
         "name": "Test Product",
         "slug": "test-product",
         "category_id": test_category["id"],
@@ -98,80 +47,83 @@ def test_product(test_category):
     return resp.json()
 
 
-def create_category(name: str, slug: str):
-    """Helper to create a category"""
-    return client.post("/api/v1/products/categories/", json={
-        "name": name,
-        "slug": slug,
-        "description": f"Description for {name}",
-        "display_order": 0,
-        "is_active": True
-    })
-
-
-def create_product(name: str, slug: str, category_id: str, file_url: str = None):
-    """Helper to create a product"""
-    data = {
-        "name": name,
-        "slug": slug,
-        "category_id": category_id,
-        "price_brl": 99.99,
-        "price_usd": 19.99
-    }
-    if file_url:
-        data["file_url"] = file_url
-    return client.post("/api/v1/products/products/", json=data)
-
-
-def create_user(email: str, name: str):
-    """Helper to create a user"""
-    return client.post("/api/v1/users/users/", json={
-        "email": email,
-        "full_name": name
-    })
-
-
 class TestCategoryEndpoints:
     """Test product category endpoints"""
 
-    def test_create_category_success(self):
+    def test_create_category_success(self, client):
         """POST /categories/ - Success"""
-        response = create_category("Python", "python")
+        response = client.post("/api/v1/products/categories", json={
+            "name": "Python",
+            "slug": "python",
+            "description": "Description for Python",
+            "display_order": 0,
+            "is_active": True
+        })
         assert response.status_code == 201
         assert response.json()["name"] == "Python"
         assert "id" in response.json()
 
-    def test_create_category_duplicate_slug(self):
+    def test_create_category_duplicate_slug(self, client):
         """POST /categories/ - Duplicate slug error"""
-        create_category("Python", "python")
-        response = create_category("Different", "python")
+        client.post("/api/v1/products/categories", json={
+            "name": "Python",
+            "slug": "python",
+            "description": "Test",
+            "display_order": 0,
+            "is_active": True
+        })
+        response = client.post("/api/v1/products/categories", json={
+            "name": "Different",
+            "slug": "python",
+            "description": "Test",
+            "display_order": 0,
+            "is_active": True
+        })
         assert response.status_code == 400
         assert "already exists" in response.json()["detail"]
 
-    def test_list_categories(self):
+    def test_list_categories(self, client):
         """GET /categories/ - List all"""
         for i in range(3):
-            create_category(f"Category {i}", f"cat-{i}")
-        response = client.get("/api/v1/products/categories/")
+            client.post("/api/v1/products/categories", json={
+                "name": f"Category {i}",
+                "slug": f"cat-{i}",
+                "description": f"Description for Category {i}",
+                "display_order": 0,
+                "is_active": True
+            })
+        response = client.get("/api/v1/products/categories")
         assert response.status_code == 200
         assert len(response.json()) == 3
 
-    def test_get_category_by_id(self):
+    def test_get_category_by_id(self, client):
         """GET /categories/{id} - Get one"""
-        create_resp = create_category("Python", "python")
+        create_resp = client.post("/api/v1/products/categories", json={
+            "name": "Python",
+            "slug": "python",
+            "description": "Test",
+            "display_order": 0,
+            "is_active": True
+        })
         cat_id = create_resp.json()["id"]
         response = client.get(f"/api/v1/products/categories/{cat_id}")
         assert response.status_code == 200
         assert response.json()["id"] == cat_id
 
-    def test_get_category_not_found(self):
+    def test_get_category_not_found(self, client):
         """GET /categories/{id} - Not found"""
         response = client.get(f"/api/v1/products/categories/{uuid.uuid4()}")
         assert response.status_code == 404
 
-    def test_update_category(self):
+    def test_update_category(self, client):
         """PATCH /categories/{id} - Update"""
-        create_resp = create_category("Old Name", "old-name")
+        create_resp = client.post("/api/v1/products/categories", json={
+            "name": "Old Name",
+            "slug": "old-name",
+            "description": "Test",
+            "display_order": 0,
+            "is_active": True
+        })
         cat_id = create_resp.json()["id"]
         response = client.patch(f"/api/v1/products/categories/{cat_id}", json={
             "name": "New Name"
@@ -179,9 +131,15 @@ class TestCategoryEndpoints:
         assert response.status_code == 200
         assert response.json()["name"] == "New Name"
 
-    def test_delete_category(self):
+    def test_delete_category(self, client):
         """DELETE /categories/{id} - Delete"""
-        create_resp = create_category("Delete Me", "delete-me")
+        create_resp = client.post("/api/v1/products/categories", json={
+            "name": "Delete Me",
+            "slug": "delete-me",
+            "description": "Test",
+            "display_order": 0,
+            "is_active": True
+        })
         cat_id = create_resp.json()["id"]
         response = client.delete(f"/api/v1/products/categories/{cat_id}")
         assert response.status_code == 204
@@ -192,117 +150,182 @@ class TestCategoryEndpoints:
 class TestProductEndpoints:
     """Test product endpoints"""
 
-    def test_create_product_success(self, test_category):
+    def test_create_product_success(self, client, test_category):
         """POST /products/ - Success"""
-        response = create_product("Python Basics", "python-basics", test_category["id"])
+        response = client.post("/api/v1/products/", json={
+            "name": "Python Basics",
+            "slug": "python-basics",
+            "category_id": test_category["id"],
+            "price_brl": 99.99,
+            "price_usd": 19.99
+        })
         assert response.status_code == 201
         assert response.json()["name"] == "Python Basics"
         assert response.json()["status"] == "draft"
 
-    def test_create_product_invalid_category(self, test_category):
+    def test_create_product_invalid_category(self, client, test_category):
         """POST /products/ - Invalid category"""
-        response = create_product("Bad", "bad", str(uuid.uuid4()))
+        response = client.post("/api/v1/products/", json={
+            "name": "Bad",
+            "slug": "bad",
+            "category_id": str(uuid.uuid4()),
+            "price_brl": 99.99,
+            "price_usd": 19.99
+        })
         assert response.status_code == 400
         assert "Category" in response.json()["detail"]
 
-    def test_list_products(self, test_category):
+    def test_list_products(self, client, test_category):
         """GET /products/ - List all"""
         for i in range(3):
-            create_product(f"Book {i}", f"book-{i}", test_category["id"])
-        response = client.get("/api/v1/products/products/")
+            client.post("/api/v1/products/", json={
+                "name": f"Book {i}",
+                "slug": f"book-{i}",
+                "category_id": test_category["id"],
+                "price_brl": 99.99,
+                "price_usd": 19.99
+            })
+        response = client.get("/api/v1/products/")
         assert response.status_code == 200
         assert len(response.json()) == 3
 
-    def test_get_product_by_id(self, test_category):
+    def test_get_product_by_id(self, client, test_category):
         """GET /products/{id} - Get one"""
-        create_resp = create_product("My Book", "my-book", test_category["id"])
+        create_resp = client.post("/api/v1/products/", json={
+            "name": "My Book",
+            "slug": "my-book",
+            "category_id": test_category["id"],
+            "price_brl": 99.99,
+            "price_usd": 19.99
+        })
         prod_id = create_resp.json()["id"]
-        response = client.get(f"/api/v1/products/products/{prod_id}")
+        response = client.get(f"/api/v1/products/{prod_id}")
         assert response.status_code == 200
         assert response.json()["id"] == prod_id
 
-    def test_get_product_not_found(self, test_category):
+    def test_get_product_not_found(self, client, test_category):
         """GET /products/{id} - Not found"""
-        response = client.get(f"/api/v1/products/products/{uuid.uuid4()}")
+        response = client.get(f"/api/v1/products/{uuid.uuid4()}")
         assert response.status_code == 404
 
-    def test_publish_product_success(self, test_category):
+    def test_publish_product_success(self, client, test_category):
         """PUT /products/{id}/publish - Success with file_url"""
-        create_resp = create_product("Publishable", "publishable", test_category["id"],
-                                     file_url="http://example.com/book.pdf")
+        create_resp = client.post("/api/v1/products/", json={
+            "name": "Publishable",
+            "slug": "publishable",
+            "category_id": test_category["id"],
+            "price_brl": 99.99,
+            "price_usd": 19.99,
+            "file_url": "http://example.com/book.pdf"
+        })
         prod_id = create_resp.json()["id"]
-        response = client.put(f"/api/v1/products/products/{prod_id}/publish")
+        response = client.put(f"/api/v1/products/{prod_id}/publish")
         assert response.status_code == 200
         assert response.json()["status"] == "active"
         assert response.json()["published_at"] is not None
 
-    def test_publish_product_no_file_url(self, test_category):
+    def test_publish_product_no_file_url(self, client, test_category):
         """PUT /products/{id}/publish - Fails without file_url"""
-        create_resp = create_product("No File", "no-file", test_category["id"])
+        create_resp = client.post("/api/v1/products/", json={
+            "name": "No File",
+            "slug": "no-file",
+            "category_id": test_category["id"],
+            "price_brl": 99.99,
+            "price_usd": 19.99
+        })
         prod_id = create_resp.json()["id"]
-        response = client.put(f"/api/v1/products/products/{prod_id}/publish")
+        response = client.put(f"/api/v1/products/{prod_id}/publish")
         assert response.status_code == 400
         assert "file_url" in response.json()["detail"]
 
-    def test_archive_product(self, test_category):
+    def test_archive_product(self, client, test_category):
         """PUT /products/{id}/archive - Archive"""
-        create_resp = create_product("Archive Me", "archive-me", test_category["id"])
+        create_resp = client.post("/api/v1/products/", json={
+            "name": "Archive Me",
+            "slug": "archive-me",
+            "category_id": test_category["id"],
+            "price_brl": 99.99,
+            "price_usd": 19.99
+        })
         prod_id = create_resp.json()["id"]
-        response = client.put(f"/api/v1/products/products/{prod_id}/archive")
+        response = client.put(f"/api/v1/products/{prod_id}/archive")
         assert response.status_code == 200
         assert response.json()["status"] == "archived"
 
-    def test_delete_product(self, test_category):
+    def test_delete_product(self, client, test_category):
         """DELETE /products/{id} - Delete"""
-        create_resp = create_product("Delete Me", "delete-me", test_category["id"])
+        create_resp = client.post("/api/v1/products/", json={
+            "name": "Delete Me",
+            "slug": "delete-me",
+            "category_id": test_category["id"],
+            "price_brl": 99.99,
+            "price_usd": 19.99
+        })
         prod_id = create_resp.json()["id"]
-        response = client.delete(f"/api/v1/products/products/{prod_id}")
+        response = client.delete(f"/api/v1/products/{prod_id}")
         assert response.status_code == 204
-        assert client.get(f"/api/v1/products/products/{prod_id}").status_code == 404
+        assert client.get(f"/api/v1/products/{prod_id}").status_code == 404
 
 
 class TestUserEndpoints:
     """Test user/profile endpoints"""
 
-
-    def test_create_user_success(self):
+    def test_create_user_success(self, client):
         """POST /users/ - Success"""
-        response = create_user("test@example.com", "Test User")
+        response = client.post("/api/v1/users/users/", json={
+            "email": "test@example.com",
+            "full_name": "Test User"
+        })
         assert response.status_code == 201
         assert response.json()["email"] == "test@example.com"
         assert "id" in response.json()
 
-    def test_create_user_duplicate_email(self):
+    def test_create_user_duplicate_email(self, client):
         """POST /users/ - Duplicate email"""
-        create_user("test@example.com", "User 1")
-        response = create_user("test@example.com", "User 2")
+        client.post("/api/v1/users/users/", json={
+            "email": "test@example.com",
+            "full_name": "User 1"
+        })
+        response = client.post("/api/v1/users/users/", json={
+            "email": "test@example.com",
+            "full_name": "User 2"
+        })
         assert response.status_code == 400
         assert "already exists" in response.json()["detail"]
 
-    def test_list_users(self):
+    def test_list_users(self, client):
         """GET /users/ - List all"""
         for i in range(3):
-            create_user(f"user{i}@example.com", f"User {i}")
+            client.post("/api/v1/users/users/", json={
+                "email": f"user{i}@example.com",
+                "full_name": f"User {i}"
+            })
         response = client.get("/api/v1/users/users/")
         assert response.status_code == 200
         assert len(response.json()) == 3
 
-    def test_get_user_by_id(self):
+    def test_get_user_by_id(self, client):
         """GET /users/{id} - Get one"""
-        create_resp = create_user("john@example.com", "John")
+        create_resp = client.post("/api/v1/users/users/", json={
+            "email": "john@example.com",
+            "full_name": "John"
+        })
         user_id = create_resp.json()["id"]
         response = client.get(f"/api/v1/users/users/{user_id}")
         assert response.status_code == 200
         assert response.json()["id"] == user_id
 
-    def test_get_user_not_found(self):
+    def test_get_user_not_found(self, client):
         """GET /users/{id} - Not found"""
         response = client.get(f"/api/v1/users/users/{uuid.uuid4()}")
         assert response.status_code == 404
 
-    def test_update_user(self):
+    def test_update_user(self, client):
         """PATCH /users/{id} - Update"""
-        create_resp = create_user("test@example.com", "Old Name")
+        create_resp = client.post("/api/v1/users/users/", json={
+            "email": "test@example.com",
+            "full_name": "Old Name"
+        })
         user_id = create_resp.json()["id"]
         response = client.patch(f"/api/v1/users/users/{user_id}", json={
             "full_name": "New Name"
@@ -310,9 +333,12 @@ class TestUserEndpoints:
         assert response.status_code == 200
         assert response.json()["full_name"] == "New Name"
 
-    def test_delete_user(self):
+    def test_delete_user(self, client):
         """DELETE /users/{id} - Delete"""
-        create_resp = create_user("delete@example.com", "Delete Me")
+        create_resp = client.post("/api/v1/users/users/", json={
+            "email": "delete@example.com",
+            "full_name": "Delete Me"
+        })
         user_id = create_resp.json()["id"]
         response = client.delete(f"/api/v1/users/users/{user_id}")
         assert response.status_code == 204
@@ -322,7 +348,7 @@ class TestUserEndpoints:
 class TestReviewEndpoints:
     """Test review endpoints"""
 
-    def test_submit_review_success(self, test_user, test_product):
+    def test_submit_review_success(self, client, test_user, test_product):
         """POST /reviews/ - Success"""
         response = client.post("/api/v1/reviews/reviews/", json={
             "product_id": test_product["id"],
@@ -333,7 +359,7 @@ class TestReviewEndpoints:
         assert response.status_code == 201
         assert response.json()["rating"] == 5
 
-    def test_list_reviews(self, test_user, test_product):
+    def test_list_reviews(self, client, test_user, test_product):
         """GET /reviews/ - List all"""
         for i in range(3):
             client.post("/api/v1/reviews/reviews/", json={
@@ -346,7 +372,7 @@ class TestReviewEndpoints:
         assert response.status_code == 200
         assert len(response.json()) == 3
 
-    def test_get_review_by_id(self, test_user, test_product):
+    def test_get_review_by_id(self, client, test_user, test_product):
         """GET /reviews/{id} - Get one"""
         create_resp = client.post("/api/v1/reviews/reviews/", json={
             "product_id": test_product["id"],
@@ -359,7 +385,7 @@ class TestReviewEndpoints:
         assert response.status_code == 200
         assert response.json()["id"] == review_id
 
-    def test_approve_review(self, test_user, test_product):
+    def test_approve_review(self, client, test_user, test_product):
         """PUT /reviews/{id}/approve - Approve"""
         create_resp = client.post("/api/v1/reviews/reviews/", json={
             "product_id": test_product["id"],
@@ -372,7 +398,7 @@ class TestReviewEndpoints:
         assert response.status_code == 200
         assert response.json()["is_approved"] == True
 
-    def test_feature_review(self, test_user, test_product):
+    def test_feature_review(self, client, test_user, test_product):
         """PUT /reviews/{id}/feature - Feature"""
         create_resp = client.post("/api/v1/reviews/reviews/", json={
             "product_id": test_product["id"],
@@ -389,18 +415,18 @@ class TestReviewEndpoints:
 class TestRootEndpoints:
     """Test root endpoints"""
 
-    def test_root_endpoint(self):
+    def test_root_endpoint(self, client):
         """GET / - Root"""
         response = client.get("/")
         assert response.status_code == 200
         assert "Welcome" in response.json()["message"]
 
-    def test_swagger_docs_available(self):
+    def test_swagger_docs_available(self, client):
         """GET /docs - Swagger UI"""
         response = client.get("/docs")
         assert response.status_code == 200
 
-    def test_redoc_docs_available(self):
+    def test_redoc_docs_available(self, client):
         """GET /redoc - ReDoc"""
         response = client.get("/redoc")
         assert response.status_code == 200

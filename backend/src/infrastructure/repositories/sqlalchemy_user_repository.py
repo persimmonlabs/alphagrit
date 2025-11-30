@@ -23,6 +23,10 @@ class ProfileORM(Base):
     preferred_currency = Column(SQLEnum(CurrencyType, name="currency_type", create_type=False), default=CurrencyType.USD, nullable=True)
     created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
+    # Authentication fields
+    password_hash = Column(String(255), nullable=True)
+    refresh_token_hash = Column(String(255), nullable=True)
+    last_login_at = Column(DateTime(timezone=True), nullable=True)
 
     def to_entity(self) -> Profile:
         return Profile(
@@ -34,7 +38,10 @@ class ProfileORM(Base):
             preferred_language=self.preferred_language,
             preferred_currency=self.preferred_currency,
             created_at=self.created_at,
-            updated_at=self.updated_at
+            updated_at=self.updated_at,
+            password_hash=self.password_hash,
+            refresh_token_hash=self.refresh_token_hash,
+            last_login_at=self.last_login_at
         )
 
     @staticmethod
@@ -48,7 +55,10 @@ class ProfileORM(Base):
             preferred_language=entity.preferred_language,
             preferred_currency=entity.preferred_currency,
             created_at=entity.created_at,
-            updated_at=entity.updated_at
+            updated_at=entity.updated_at,
+            password_hash=entity.password_hash,
+            refresh_token_hash=entity.refresh_token_hash,
+            last_login_at=entity.last_login_at
         )
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Boolean, DateTime, Integer, Text, ForeignKey, Enum as SQLEnum, ARRAY
+from sqlalchemy import Column, String, Float, Boolean, DateTime, Integer, Text, ForeignKey, Enum as SQLEnum, JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -28,7 +28,7 @@ class EbookORM(Base):
     product_id = Column(String(36), ForeignKey("products.id", ondelete="CASCADE"), nullable=False, unique=True)
     total_chapters = Column(Integer, default=0)
     estimated_read_time_minutes = Column(Integer, nullable=True)
-    theme_config = Column(JSONB, default={"primaryColor": "#f97316", "accentColor": "#ef4444", "fontFamily": "Inter"})
+    theme_config = Column(JSON().with_variant(JSONB, 'postgresql'), default={"primaryColor": "#f97316", "accentColor": "#ef4444", "fontFamily": "Inter"})
     status = Column(SQLEnum(ProductStatus, name="product_status", create_type=False), default=ProductStatus.DRAFT, nullable=False)
     created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
@@ -175,9 +175,9 @@ class EbookContentBlockORM(Base):
     section_id = Column(String(36), ForeignKey("ebook_sections.id", ondelete="CASCADE"), nullable=False)
     display_order = Column(Integer, nullable=False)
     block_type = Column(String(50), nullable=False)
-    content_en = Column(JSONB, nullable=False, default={})
-    content_pt = Column(JSONB, nullable=True)
-    config = Column(JSONB, default={})
+    content_en = Column(JSON().with_variant(JSONB, 'postgresql'), nullable=False, default={})
+    content_pt = Column(JSON().with_variant(JSONB, 'postgresql'), nullable=True)
+    config = Column(JSON().with_variant(JSONB, 'postgresql'), default={})
     created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -222,8 +222,8 @@ class EbookReadingProgressORM(Base):
     last_chapter_id = Column(String(36), ForeignKey("ebook_chapters.id", ondelete="SET NULL"), nullable=True)
     last_section_id = Column(String(36), ForeignKey("ebook_sections.id", ondelete="SET NULL"), nullable=True)
     completion_percentage = Column(Float, default=0.0)
-    completed_chapters = Column(ARRAY(String(36)), default=[])
-    bookmarks = Column(ARRAY(String(36)), default=[])
+    completed_chapters = Column(JSON().with_variant(JSONB, 'postgresql'), default=[])
+    bookmarks = Column(JSON().with_variant(JSONB, 'postgresql'), default=[])
     started_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     last_read_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     completed_at = Column(DateTime(timezone=True), nullable=True)

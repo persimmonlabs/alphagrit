@@ -53,7 +53,7 @@ export default async function EbooksCatalogPage({
 
     // Fetch product details for each ebook
     const productIds = ebooksResponse.map(e => e.product_id);
-    const productsResponse = await serverApiClient<ProductResponse[]>('/products/products/?status=active');
+    const productsResponse = await serverApiClient<ProductResponse[]>('/products/?status=active');
 
     // Map products to ebooks
     ebooks = ebooksResponse.map(ebook => ({

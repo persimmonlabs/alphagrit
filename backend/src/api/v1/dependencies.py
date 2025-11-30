@@ -3,10 +3,32 @@ from uuid import uuid4
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from src.settings import get_settings
 from src.infrastructure.database import SessionLocal
 from src.domain.services.payment_gateway import AbstractPaymentGateway
-from src.infrastructure.payment_gateways.mock_gateways import MockStripeGateway, MockMercadoPagoGateway # Using mocks for now
-from src.application.services.email_service import AbstractEmailSender # Import abstract sender
+from src.infrastructure.payment_gateways.mock_gateways import MockStripeGateway, MockMercadoPagoGateway
+from src.application.services.email_service import AbstractEmailSender
+
+# Get settings
+settings = get_settings()
+
+# Lazy imports for payment gateways to avoid ImportError if SDKs not installed
+StripeGateway = None
+MercadoPagoGateway = None
+
+def _get_stripe_gateway():
+    global StripeGateway
+    if StripeGateway is None:
+        from src.infrastructure.payment_gateways.stripe_gateway import StripeGateway as SG
+        StripeGateway = SG
+    return StripeGateway
+
+def _get_mercadopago_gateway():
+    global MercadoPagoGateway
+    if MercadoPagoGateway is None:
+        from src.infrastructure.payment_gateways.mercado_pago_gateway import MercadoPagoGateway as MPG
+        MercadoPagoGateway = MPG
+    return MercadoPagoGateway
 
 # Abstract Repositories
 from src.domain.repositories.product_repository import AbstractProductRepository, AbstractCategoryRepository
@@ -72,11 +94,42 @@ def get_email_sender() -> AbstractEmailSender:
     return MockEmailSender()
 
 
-# --- Payment Gateway Dependencies (for now, mocks based on order's payment method) ---
+# --- Payment Gateway Dependencies ---
 def get_stripe_payment_gateway() -> AbstractPaymentGateway:
+    """
+    Get Stripe payment gateway.
+
+    Returns real gateway if configured, mock otherwise.
+    """
+    if settings.has_stripe_config():
+        try:
+            GatewayClass = _get_stripe_gateway()
+            return GatewayClass(
+                secret_key=settings.STRIPE_SECRET_KEY,
+                webhook_secret=settings.STRIPE_WEBHOOK_SECRET,
+                publishable_key=settings.STRIPE_PUBLISHABLE_KEY
+            )
+        except ImportError:
+            pass  # Fall back to mock
     return MockStripeGateway()
 
+
 def get_mercado_pago_payment_gateway() -> AbstractPaymentGateway:
+    """
+    Get Mercado Pago payment gateway.
+
+    Returns real gateway if configured, mock otherwise.
+    """
+    if settings.has_mercado_pago_config():
+        try:
+            GatewayClass = _get_mercadopago_gateway()
+            return GatewayClass(
+                access_token=settings.MERCADO_PAGO_ACCESS_TOKEN,
+                public_key=settings.MERCADO_PAGO_PUBLIC_KEY,
+                webhook_secret=settings.MERCADO_PAGO_WEBHOOK_SECRET
+            )
+        except ImportError:
+            pass  # Fall back to mock
     return MockMercadoPagoGateway()
 
 

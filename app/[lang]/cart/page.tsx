@@ -32,7 +32,7 @@ export default async function CartPage({
   let cartItems: CartItem[] = [];
 
   try {
-    cartItems = await serverApiClient<CartItem[]>(`/orders/${userId}/items`);
+    cartItems = await serverApiClient<CartItem[]>(`/orders/cart/${userId}/items`);
   } catch (error) {
     console.error(`Error fetching cart items for user ${userId}:`, error);
     // Depending on error, might show an empty cart or an error message

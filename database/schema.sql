@@ -38,6 +38,11 @@ CREATE TABLE profiles (
     role user_role DEFAULT 'customer' NOT NULL,
     preferred_language VARCHAR(5) DEFAULT 'en',
     preferred_currency currency_type DEFAULT 'USD',
+    -- Authentication fields
+    password_hash VARCHAR(255),
+    refresh_token_hash VARCHAR(255),
+    last_login_at TIMESTAMPTZ,
+    -- Timestamps
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
