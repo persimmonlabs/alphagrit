@@ -219,22 +219,15 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-neutral-400 mb-4">
-              E-books and chapters are managed through Sanity Studio, a dedicated content management system.
+              Create and manage e-books and chapters directly from the admin panel.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <a
-                href="https://www.sanity.io/manage"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-              >
-                Open Sanity Studio
-                <ExternalLink className="w-4 h-4" />
-              </a>
-              <div className="text-sm text-neutral-500 flex items-center">
-                Or run locally: <code className="ml-2 px-2 py-1 bg-neutral-800 rounded">npx sanity dev</code>
-              </div>
-            </div>
+            <Link
+              href="/admin/ebooks-manage"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              <BookOpen className="w-4 h-4" />
+              Manage E-books
+            </Link>
           </CardContent>
         </Card>
 

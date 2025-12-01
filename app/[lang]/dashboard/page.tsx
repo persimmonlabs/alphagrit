@@ -2,8 +2,7 @@ import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import { createClient } from '@/lib/supabase/server';
 import { getUser, getProfile } from '@/lib/supabase/server';
-import { getEbooks } from '@/lib/sanity/queries';
-import { urlFor } from '@/lib/sanity/client';
+import { getEbooks } from '@/lib/supabase/ebooks';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -42,16 +41,19 @@ export default async function DashboardPage({
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  // Fetch all ebooks from Sanity to match with purchases
+  // Fetch all active ebooks from Supabase
   const allEbooks = await getEbooks();
 
-  // Get purchased ebook IDs
-  const purchasedEbookIds = new Set(purchases?.map(p => p.sanity_ebook_id) || []);
+  // Get purchased ebook IDs (check both ebook_id and legacy sanity_ebook_id)
+  const purchasedEbookIds = new Set([
+    ...(purchases?.map(p => p.ebook_id).filter(Boolean) || []),
+    ...(purchases?.map(p => p.sanity_ebook_id).filter(Boolean) || [])
+  ]);
 
   // Filter ebooks user has access to
   const accessibleEbooks = subscription
     ? allEbooks // Subscriber has access to all
-    : allEbooks.filter(ebook => purchasedEbookIds.has(ebook._id));
+    : allEbooks.filter(ebook => purchasedEbookIds.has(ebook.id));
 
   const hasSubscription = !!subscription;
   const hasPurchases = purchases && purchases.length > 0;
@@ -121,26 +123,23 @@ export default async function DashboardPage({
         {hasAccess && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {accessibleEbooks.map((ebook) => {
-              const title = lang === 'pt' && ebook.title.pt ? ebook.title.pt : ebook.title.en;
-              const coverUrl = ebook.coverImage
-                ? urlFor(ebook.coverImage).width(300).height(400).url()
-                : null;
-              const chapterCount = ebook.chapters?.filter(ch => ch.isPublished).length || 0;
-              const firstChapterSlug = ebook.chapters?.find(ch => ch.isPublished)?.slug.current;
+              const title = lang === 'pt' && ebook.title_pt ? ebook.title_pt : ebook.title_en;
+              const chapterCount = ebook.chapters?.length || 0;
+              const firstChapterSlug = ebook.chapters?.[0]?.slug;
 
               return (
                 <Link
-                  key={ebook._id}
+                  key={ebook.id}
                   href={firstChapterSlug
-                    ? `/${lang}/ebooks/${ebook.slug.current}/${firstChapterSlug}`
-                    : `/${lang}/ebooks/${ebook.slug.current}`
+                    ? `/${lang}/ebooks/${ebook.slug}/${firstChapterSlug}`
+                    : `/${lang}/ebooks/${ebook.slug}`
                   }
                   className="group bg-card border border-border rounded-xl overflow-hidden hover:border-orange-500/50 transition-all hover:shadow-lg"
                 >
                   <div className="aspect-[3/4] relative bg-muted">
-                    {coverUrl ? (
+                    {ebook.cover_image_url ? (
                       <Image
-                        src={coverUrl}
+                        src={ebook.cover_image_url}
                         alt={title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"

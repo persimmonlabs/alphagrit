@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getEbooks } from '@/lib/sanity/queries'
+import { getEbooks } from '@/lib/supabase/ebooks'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://alphagrit.com'
@@ -30,8 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const ebooks = await getEbooks()
     ebookRoutes = ['en', 'pt'].flatMap((lang) =>
       ebooks.map((ebook) => ({
-        url: `${baseUrl}/${lang}/ebooks/${ebook.slug.current}`,
-        lastModified: new Date(),
+        url: `${baseUrl}/${lang}/ebooks/${ebook.slug}`,
+        lastModified: new Date(ebook.updated_at),
         changeFrequency: 'monthly' as const,
         priority: 0.7,
       }))

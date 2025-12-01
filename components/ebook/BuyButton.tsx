@@ -51,7 +51,7 @@ export function BuyButton({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'ebook',
-          sanityEbookId: ebookId,
+          ebookId,
           priceId,
           currency,
           lang,

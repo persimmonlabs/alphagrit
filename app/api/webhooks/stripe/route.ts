@@ -94,8 +94,9 @@ export async function POST(request: Request) {
         const metadata = session.metadata
 
         if (metadata.type === 'ebook_purchase') {
-          // Validate required metadata
-          if (!metadata.user_id || !metadata.sanity_ebook_id) {
+          // Validate required metadata (support both ebook_id and legacy sanity_ebook_id)
+          const ebookId = metadata.ebook_id || metadata.sanity_ebook_id
+          if (!metadata.user_id || !ebookId) {
             console.error(`[Webhook ${webhookId}] Missing required metadata for ebook purchase`)
             break
           }
@@ -112,10 +113,11 @@ export async function POST(request: Request) {
             break
           }
 
-          // Record purchase
+          // Record purchase (store in ebook_id, keep sanity_ebook_id for legacy)
           const { error: insertError } = await supabaseAdmin.from('purchases').insert({
             user_id: metadata.user_id,
-            sanity_ebook_id: metadata.sanity_ebook_id,
+            ebook_id: ebookId,
+            sanity_ebook_id: ebookId, // Keep for backwards compatibility
             stripe_payment_intent_id: session.payment_intent as string,
             amount_paid: session.amount_total || 0,
             currency: metadata.currency || 'USD',
@@ -126,7 +128,7 @@ export async function POST(request: Request) {
             throw insertError
           }
 
-          console.info(`[Webhook ${webhookId}] Purchase recorded: user=${metadata.user_id}, ebook=${metadata.sanity_ebook_id}`)
+          console.info(`[Webhook ${webhookId}] Purchase recorded: user=${metadata.user_id}, ebook=${ebookId}`)
 
         } else if (metadata.type === 'subscription') {
           if (!metadata.user_id || !session.subscription) {

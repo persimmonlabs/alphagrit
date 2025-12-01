@@ -1,7 +1,6 @@
 import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
-import { getEbooks } from '@/lib/sanity/queries';
-import { urlFor } from '@/lib/sanity/client';
+import { getEbooks } from '@/lib/supabase/ebooks';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
@@ -15,7 +14,7 @@ export default async function EbooksCatalogPage({
 }) {
   const dict = await getDictionary(lang);
 
-  // Fetch all active ebooks from Sanity
+  // Fetch all active ebooks from Supabase
   const ebooks = await getEbooks();
 
   const title = lang === 'pt' ? 'E-Books' : 'E-Books';
@@ -56,26 +55,23 @@ export default async function EbooksCatalogPage({
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {ebooks.map((ebook) => {
-              const ebookTitle = lang === 'pt' && ebook.title.pt ? ebook.title.pt : ebook.title.en;
-              const ebookDescription = lang === 'pt' && ebook.description?.pt
-                ? ebook.description.pt
-                : ebook.description?.en;
-              const coverUrl = ebook.coverImage
-                ? urlFor(ebook.coverImage).width(400).height(533).url()
-                : null;
-              const chapterCount = ebook.chapters?.filter(ch => ch.isPublished).length || 0;
+              const ebookTitle = lang === 'pt' && ebook.title_pt ? ebook.title_pt : ebook.title_en;
+              const ebookDescription = lang === 'pt' && ebook.description_pt
+                ? ebook.description_pt
+                : ebook.description_en;
+              const chapterCount = ebook.chapters?.length || 0;
 
               return (
                 <Link
-                  key={ebook._id}
-                  href={`/${lang}/ebooks/${ebook.slug.current}`}
+                  key={ebook.id}
+                  href={`/${lang}/ebooks/${ebook.slug}`}
                   className="group block bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg"
                 >
                   {/* Cover Image */}
                   <div className="aspect-[3/4] relative bg-muted">
-                    {coverUrl ? (
+                    {ebook.cover_image_url ? (
                       <Image
-                        src={coverUrl}
+                        src={ebook.cover_image_url}
                         alt={ebookTitle}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -105,10 +101,10 @@ export default async function EbooksCatalogPage({
                           <BookOpen className="w-4 h-4" />
                           {chapterCount} {lang === 'pt' ? 'capítulos' : 'chapters'}
                         </span>
-                        {ebook.estimatedReadTimeMinutes && (
+                        {ebook.estimated_read_time_minutes > 0 && (
                           <span className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
-                            {ebook.estimatedReadTimeMinutes} min
+                            {ebook.estimated_read_time_minutes} min
                           </span>
                         )}
                       </div>

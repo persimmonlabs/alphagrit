@@ -58,7 +58,7 @@ export async function createEbookCheckoutSession({
   priceId,
   userId,
   customerId,
-  sanityEbookId,
+  ebookId,
   currency,
   successUrl,
   cancelUrl,
@@ -66,7 +66,7 @@ export async function createEbookCheckoutSession({
   priceId: string
   userId: string
   customerId: string
-  sanityEbookId: string
+  ebookId: string
   currency: 'USD' | 'BRL'
   successUrl: string
   cancelUrl: string
@@ -85,7 +85,7 @@ export async function createEbookCheckoutSession({
     cancel_url: cancelUrl,
     metadata: {
       user_id: userId,
-      sanity_ebook_id: sanityEbookId,
+      ebook_id: ebookId,
       type: 'ebook_purchase',
       currency,
     },

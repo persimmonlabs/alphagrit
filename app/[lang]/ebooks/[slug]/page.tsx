@@ -1,7 +1,6 @@
 import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
-import { getEbookBySlug } from '@/lib/sanity/queries';
-import { urlFor } from '@/lib/sanity/client';
+import { getEbookBySlug } from '@/lib/supabase/ebooks';
 import { hasEbookAccess } from '@/lib/supabase/server';
 import { BuyButton } from '@/components/ebook/BuyButton';
 
@@ -18,7 +17,7 @@ export default async function EbookOverviewPage({
 }) {
   const dict = await getDictionary(lang);
 
-  // Fetch ebook from Sanity
+  // Fetch ebook from Supabase
   const ebook = await getEbookBySlug(slug);
 
   if (!ebook || ebook.status !== 'active') {
@@ -26,14 +25,14 @@ export default async function EbookOverviewPage({
   }
 
   // Check user access via Supabase
-  const hasAccess = await hasEbookAccess(ebook._id);
+  const hasAccess = await hasEbookAccess(ebook.id);
 
   // Get published chapters only
-  const chapters = ebook.chapters?.filter(ch => ch.isPublished) || [];
+  const chapters = ebook.chapters || [];
 
   const themeStyles = {
-    '--ebook-primary': ebook.themeConfig?.primaryColor || '#f97316',
-    '--ebook-accent': ebook.themeConfig?.accentColor || '#ef4444',
+    '--ebook-primary': '#f97316',
+    '--ebook-accent': '#ef4444',
   } as React.CSSProperties;
 
   const currency = lang === 'pt' ? 'BRL' : 'USD';
@@ -41,12 +40,11 @@ export default async function EbookOverviewPage({
   const priceFormatted = new Intl.NumberFormat(lang === 'pt' ? 'pt-BR' : 'en-US', {
     style: 'currency',
     currency,
-  }).format(price || 0);
+  }).format(price / 100);
 
   // Get localized content
-  const title = lang === 'pt' && ebook.title.pt ? ebook.title.pt : ebook.title.en;
-  const description = lang === 'pt' && ebook.description?.pt ? ebook.description.pt : ebook.description?.en;
-  const coverImageUrl = ebook.coverImage ? urlFor(ebook.coverImage).width(600).height(800).url() : null;
+  const title = lang === 'pt' && ebook.title_pt ? ebook.title_pt : ebook.title_en;
+  const description = lang === 'pt' && ebook.description_pt ? ebook.description_pt : ebook.description_en;
 
   return (
     <div className="min-h-screen bg-background" style={themeStyles}>
@@ -57,9 +55,9 @@ export default async function EbookOverviewPage({
             {/* Cover Image */}
             <div className="lg:col-span-1">
               <div className="aspect-[3/4] relative bg-muted rounded-xl overflow-hidden shadow-xl">
-                {coverImageUrl ? (
+                {ebook.cover_image_url ? (
                   <Image
-                    src={coverImageUrl}
+                    src={ebook.cover_image_url}
                     alt={title}
                     fill
                     className="object-cover"
@@ -90,10 +88,10 @@ export default async function EbookOverviewPage({
                   <BookOpen className="w-5 h-5" />
                   {chapters.length} {lang === 'pt' ? 'capítulos' : 'chapters'}
                 </span>
-                {ebook.estimatedReadTimeMinutes && (
+                {ebook.estimated_read_time_minutes > 0 && (
                   <span className="flex items-center gap-2">
                     <Clock className="w-5 h-5" />
-                    {ebook.estimatedReadTimeMinutes} {lang === 'pt' ? 'min de leitura' : 'min read'}
+                    {ebook.estimated_read_time_minutes} {lang === 'pt' ? 'min de leitura' : 'min read'}
                   </span>
                 )}
               </div>
@@ -102,7 +100,7 @@ export default async function EbookOverviewPage({
                 {hasAccess ? (
                   <div className="flex flex-wrap gap-4">
                     <Link
-                      href={`/${lang}/ebooks/${slug}/${chapters[0]?.slug.current || ''}`}
+                      href={`/${lang}/ebooks/${slug}/${chapters[0]?.slug || ''}`}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--ebook-primary)] text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
                     >
                       <BookOpen className="w-5 h-5" />
@@ -112,15 +110,15 @@ export default async function EbookOverviewPage({
                 ) : (
                   <div className="flex flex-wrap items-center gap-4">
                     <BuyButton
-                      ebookId={ebook._id}
-                      priceId={lang === 'pt' ? ebook.stripe_price_id_brl : ebook.stripe_price_id_usd}
+                      ebookId={ebook.id}
+                      priceId={(lang === 'pt' ? ebook.stripe_price_id_brl : ebook.stripe_price_id_usd) || undefined}
                       currency={currency}
                       lang={lang}
                       priceFormatted={priceFormatted}
                     />
-                    {chapters.some(ch => ch.isFreePreview) && (
+                    {chapters.some(ch => ch.is_free_preview) && (
                       <Link
-                        href={`/${lang}/ebooks/${slug}/${chapters.find(ch => ch.isFreePreview)?.slug.current}`}
+                        href={`/${lang}/ebooks/${slug}/${chapters.find(ch => ch.is_free_preview)?.slug}`}
                         className="inline-flex items-center gap-2 px-6 py-3 border border-border text-foreground font-semibold rounded-lg hover:bg-muted transition-colors"
                       >
                         {lang === 'pt' ? 'Ler amostra grátis' : 'Read free preview'}
@@ -142,14 +140,14 @@ export default async function EbookOverviewPage({
 
         <div className="space-y-3">
           {chapters.map((chapter) => {
-            const canAccess = hasAccess || chapter.isFreePreview;
-            const chapterTitle = lang === 'pt' && chapter.title.pt ? chapter.title.pt : chapter.title.en;
-            const chapterSummary = lang === 'pt' && chapter.summary?.pt ? chapter.summary.pt : chapter.summary?.en;
+            const canAccess = hasAccess || chapter.is_free_preview;
+            const chapterTitle = lang === 'pt' && chapter.title_pt ? chapter.title_pt : chapter.title_en;
+            const chapterSummary = lang === 'pt' && chapter.summary_pt ? chapter.summary_pt : chapter.summary_en;
 
             return (
               <Link
-                key={chapter._id}
-                href={canAccess ? `/${lang}/ebooks/${slug}/${chapter.slug.current}` : '#'}
+                key={chapter.id}
+                href={canAccess ? `/${lang}/ebooks/${slug}/${chapter.slug}` : '#'}
                 className={`group block p-5 rounded-xl border transition-all ${
                   canAccess
                     ? 'border-border hover:border-[var(--ebook-primary)] hover:bg-muted/50'
@@ -165,7 +163,7 @@ export default async function EbookOverviewPage({
                         : 'bg-muted text-muted-foreground'
                     }`}
                   >
-                    {canAccess ? chapter.chapterNumber : <Lock className="w-4 h-4" />}
+                    {canAccess ? chapter.chapter_number : <Lock className="w-4 h-4" />}
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -173,7 +171,7 @@ export default async function EbookOverviewPage({
                       <h3 className={`font-semibold ${canAccess ? 'group-hover:text-[var(--ebook-primary)]' : ''} transition-colors`}>
                         {chapterTitle}
                       </h3>
-                      {chapter.isFreePreview && !hasAccess && (
+                      {chapter.is_free_preview && !hasAccess && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
                           {lang === 'pt' ? 'Grátis' : 'Free'}
                         </span>
@@ -184,10 +182,10 @@ export default async function EbookOverviewPage({
                         {chapterSummary}
                       </p>
                     )}
-                    {chapter.estimatedReadTimeMinutes && (
+                    {chapter.estimated_read_time_minutes > 0 && (
                       <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {chapter.estimatedReadTimeMinutes} min
+                        {chapter.estimated_read_time_minutes} min
                       </p>
                     )}
                   </div>

@@ -68,7 +68,7 @@ export async function isAdmin() {
 }
 
 // Check if user has access to an ebook (purchased or subscribed)
-export async function hasEbookAccess(sanityEbookId: string) {
+export async function hasEbookAccess(ebookId: string) {
   const supabase = createClient()
   const user = await getUser()
   if (!user) return false
@@ -83,12 +83,12 @@ export async function hasEbookAccess(sanityEbookId: string) {
 
   if (subscription) return true
 
-  // Check for individual purchase
+  // Check for individual purchase (check both ebook_id and legacy sanity_ebook_id)
   const { data: purchase } = await supabase
     .from('purchases')
     .select('*')
     .eq('user_id', user.id)
-    .eq('sanity_ebook_id', sanityEbookId)
+    .or(`ebook_id.eq.${ebookId},sanity_ebook_id.eq.${ebookId}`)
     .single()
 
   return !!purchase

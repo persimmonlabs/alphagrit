@@ -175,15 +175,15 @@ export async function POST(request: Request) {
       }
     } else {
       // Ebook purchase
-      const { sanityEbookId, priceId } = body
+      const { ebookId, priceId } = body
 
-      if (!sanityEbookId) {
-        console.warn(`[${requestId}] Missing sanityEbookId`)
-        return createErrorResponse('INVALID_REQUEST', 400, lang, 'Missing sanityEbookId')
+      if (!ebookId) {
+        console.warn(`[${requestId}] Missing ebookId`)
+        return createErrorResponse('INVALID_REQUEST', 400, lang, 'Missing ebookId')
       }
 
       if (!priceId) {
-        console.warn(`[${requestId}] Missing priceId for ebook ${sanityEbookId}`)
+        console.warn(`[${requestId}] Missing priceId for ebook ${ebookId}`)
         return createErrorResponse('STRIPE_NOT_CONFIGURED', 503, lang, 'Price not configured for this ebook')
       }
 
@@ -192,13 +192,13 @@ export async function POST(request: Request) {
           priceId,
           userId: user.id,
           customerId,
-          sanityEbookId,
+          ebookId,
           currency: currency as 'USD' | 'BRL',
           successUrl: `${origin}/${lang}/dashboard?success=purchase`,
           cancelUrl: `${origin}/${lang}/ebooks?canceled=true`,
         })
 
-        console.info(`[${requestId}] Ebook checkout created for user ${user.id}, ebook ${sanityEbookId}`)
+        console.info(`[${requestId}] Ebook checkout created for user ${user.id}, ebook ${ebookId}`)
         return NextResponse.json({ url: session.url })
       } catch (error: any) {
         console.error(`[${requestId}] Ebook checkout error:`, error)
