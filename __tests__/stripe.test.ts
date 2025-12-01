@@ -26,18 +26,18 @@ describe('Stripe Configuration', () => {
     }).rejects.toThrow()
   })
 
-  it('should have subscription plans defined', async () => {
-    const { SUBSCRIPTION_PLANS } = await import('@/lib/stripe')
+  it('should have subscription prices defined', async () => {
+    const { SUBSCRIPTION_PRICES } = await import('@/lib/stripe')
 
-    expect(SUBSCRIPTION_PLANS).toBeDefined()
-    expect(SUBSCRIPTION_PLANS.monthly).toBeDefined()
-    expect(SUBSCRIPTION_PLANS.yearly).toBeDefined()
+    expect(SUBSCRIPTION_PRICES).toBeDefined()
+    expect(SUBSCRIPTION_PRICES.monthly).toBeDefined()
+    expect(SUBSCRIPTION_PRICES.yearly).toBeDefined()
 
     // Check that prices exist (even if placeholders)
-    expect(SUBSCRIPTION_PLANS.monthly.USD).toBeDefined()
-    expect(SUBSCRIPTION_PLANS.monthly.BRL).toBeDefined()
-    expect(SUBSCRIPTION_PLANS.yearly.USD).toBeDefined()
-    expect(SUBSCRIPTION_PLANS.yearly.BRL).toBeDefined()
+    expect(SUBSCRIPTION_PRICES.monthly.USD).toBeDefined()
+    expect(SUBSCRIPTION_PRICES.monthly.BRL).toBeDefined()
+    expect(SUBSCRIPTION_PRICES.yearly.USD).toBeDefined()
+    expect(SUBSCRIPTION_PRICES.yearly.BRL).toBeDefined()
   })
 })
 

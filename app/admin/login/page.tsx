@@ -123,16 +123,9 @@ export default function AdminLoginPage() {
           </Button>
         </form>
 
-        <div className="mt-8 p-4 bg-black rounded border border-neutral-700">
-          <p className="text-xs text-neutral-400 leading-relaxed">
-            <strong className="text-orange-500 block mb-2">Note:</strong>
-            Only users with admin role can access this panel.
-            To make a user admin, run in Supabase SQL Editor:
-          </p>
-          <code className="text-xs text-neutral-500 block mt-2">
-            UPDATE profiles SET role = &apos;admin&apos; WHERE id = &apos;user-uuid&apos;;
-          </code>
-        </div>
+        <p className="mt-6 text-xs text-neutral-500 text-center">
+          Only users with admin role can access this panel.
+        </p>
       </div>
     </div>
   );

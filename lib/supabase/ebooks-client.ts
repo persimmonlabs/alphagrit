@@ -4,6 +4,27 @@ import type { Ebook, Chapter } from './ebooks'
 // Re-export types
 export type { Ebook, Chapter }
 
+// Helper to verify admin role before mutations
+async function requireAdmin(): Promise<void> {
+  const supabase = createClient()
+  if (!supabase) throw new Error('Supabase client not available')
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    throw new Error('Authentication required')
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError || profile?.role !== 'admin') {
+    throw new Error('Admin privileges required')
+  }
+}
+
 // Client-side ebook operations for admin UI
 
 // Get all ebooks for admin
@@ -86,6 +107,7 @@ export async function getChapterById(id: string): Promise<Chapter | null> {
 
 // Create ebook
 export async function createEbook(ebook: Partial<Ebook>): Promise<Ebook | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -105,6 +127,7 @@ export async function createEbook(ebook: Partial<Ebook>): Promise<Ebook | null> 
 
 // Update ebook
 export async function updateEbook(id: string, ebook: Partial<Ebook>): Promise<Ebook | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -125,6 +148,7 @@ export async function updateEbook(id: string, ebook: Partial<Ebook>): Promise<Eb
 
 // Delete ebook
 export async function deleteEbook(id: string): Promise<boolean> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return false
 
@@ -143,6 +167,7 @@ export async function deleteEbook(id: string): Promise<boolean> {
 
 // Create chapter
 export async function createChapter(chapter: Partial<Chapter>): Promise<Chapter | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -162,6 +187,7 @@ export async function createChapter(chapter: Partial<Chapter>): Promise<Chapter 
 
 // Update chapter
 export async function updateChapter(id: string, chapter: Partial<Chapter>): Promise<Chapter | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -182,6 +208,7 @@ export async function updateChapter(id: string, chapter: Partial<Chapter>): Prom
 
 // Delete chapter
 export async function deleteChapter(id: string): Promise<boolean> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return false
 
@@ -200,6 +227,7 @@ export async function deleteChapter(id: string): Promise<boolean> {
 
 // Upload cover image
 export async function uploadCoverImage(file: File, ebookId: string): Promise<string | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -225,6 +253,7 @@ export async function uploadCoverImage(file: File, ebookId: string): Promise<str
 
 // Upload chapter image
 export async function uploadChapterImage(file: File, chapterId: string): Promise<string | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 

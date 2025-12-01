@@ -64,7 +64,7 @@ export function BuyButton({
         window.location.href = data.url
       } else if (data.error) {
         // If not logged in, redirect to login
-        if (data.error === 'Unauthorized') {
+        if (data.error === 'UNAUTHORIZED') {
           window.location.href = `/${lang}/auth/login?redirect=${window.location.pathname}`
         } else if (data.error === 'Stripe not configured') {
           setError(lang === 'pt'

@@ -1,5 +1,26 @@
 import { createClient } from './client'
 
+// Helper to verify admin role before mutations
+async function requireAdmin(): Promise<void> {
+  const supabase = createClient()
+  if (!supabase) throw new Error('Supabase client not available')
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    throw new Error('Authentication required')
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError || profile?.role !== 'admin') {
+    throw new Error('Admin privileges required')
+  }
+}
+
 // Types for blog posts
 export interface BlogPost {
   id: string
@@ -70,6 +91,7 @@ export async function getBlogPostById(id: string): Promise<BlogPost | null> {
 
 // Create blog post
 export async function createBlogPost(post: Partial<BlogPost>): Promise<BlogPost | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -89,6 +111,7 @@ export async function createBlogPost(post: Partial<BlogPost>): Promise<BlogPost 
 
 // Update blog post
 export async function updateBlogPost(id: string, post: Partial<BlogPost>): Promise<BlogPost | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 
@@ -109,6 +132,7 @@ export async function updateBlogPost(id: string, post: Partial<BlogPost>): Promi
 
 // Delete blog post
 export async function deleteBlogPost(id: string): Promise<boolean> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return false
 
@@ -127,6 +151,7 @@ export async function deleteBlogPost(id: string): Promise<boolean> {
 
 // Upload blog cover image
 export async function uploadBlogImage(file: File, postId: string): Promise<string | null> {
+  await requireAdmin()
   const supabase = createClient()
   if (!supabase) return null
 

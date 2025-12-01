@@ -4,158 +4,113 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-### Frontend (Next.js)
 ```bash
-npm run dev          # Start frontend dev server (http://localhost:3000)
+npm run dev          # Start dev server (http://localhost:3000)
 npm run build        # Build for production
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript compiler check (tsc --noEmit)
-```
-
-### Backend (FastAPI)
-```bash
-cd backend
-pip install -r requirements.txt              # Install dependencies
-uvicorn src.main:app --reload --port 8000    # Start backend (http://localhost:8000)
-pytest                                        # Run all tests
-pytest src/tests/unit                         # Run unit tests only
-pytest src/tests/integration                  # Run integration tests only
-pytest src/tests/api                          # Run API tests only
-pytest -k "test_product"                      # Run tests matching pattern
+npm test             # Run tests
 ```
 
 ## Architecture Overview
 
-Alpha Grit is a **full-stack e-commerce platform** with a Next.js frontend and FastAPI backend.
+Alpha Grit is a **full-stack e-commerce platform** for selling e-books, built entirely with Next.js and deployed on Vercel.
 
 ### Tech Stack
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: FastAPI, SQLAlchemy, SQLite (dev) / PostgreSQL (prod)
-- **Database**: Railway PostgreSQL
-- **Payments**: Stripe (Mercado Pago prepared but disabled)
+- **Framework**: Next.js 14 (App Router), TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Database**: Supabase (PostgreSQL + Auth + Storage)
+- **CMS**: Sanity (optional, for blog content)
+- **Payments**: Stripe
+- **Hosting**: Vercel
 - **Emails**: Resend + React Email
 
 ---
 
-## Frontend Architecture
-
-### Routing Structure
-
-The app uses **locale-based routing** with middleware redirect:
-- All public routes are under `/app/[lang]/` (e.g., `/en/products`, `/pt/cart`)
-- Admin routes are at `/app/admin/` (not localized)
-- API routes are at `/app/api/`
-
-The middleware (`middleware.ts`) automatically redirects requests without a locale prefix to the user's preferred language (English or Portuguese).
-
-### Key Directories
+## Project Structure
 
 ```
 /app
   /[lang]              # Localized public routes (en, pt)
-    /products          # Product catalog and detail pages
-    /cart, /checkout   # Shopping flow
-    /dashboard         # User account area
+    /ebooks            # E-book catalog and reader
     /blog              # Blog listing and posts
-  /admin               # Admin panel (products, blog, settings)
-  /api                 # API routes (webhooks, submissions)
+    /dashboard         # User account, purchases, subscriptions
+    /auth              # Login, signup, password reset
+  /admin               # Admin panel (ebooks, blog management)
+  /api                 # API routes
+    /checkout          # Stripe checkout session creation
+    /webhooks/stripe   # Stripe webhook handler
+    /subscription      # Subscription portal
 
 /components
   /ui                  # shadcn/ui components
   /organisms           # Complex components (Hero, Footer, Navigation)
-  /templates           # Page templates (ProductCatalog, Checkout, etc.)
+  /ebook               # E-book reader components (BuyButton, BlockRenderer)
+  /admin               # Admin components (TipTapEditor)
 
 /lib
-  /api-client.ts       # API client for FastAPI backend
-  /api-client-server.ts # Server-side API client
-  /dictionary.ts       # i18n dictionary loader
+  /supabase            # Supabase clients and queries
+    /client.ts         # Browser client
+    /server.ts         # Server client with auth helpers
+    /ebooks.ts         # E-book CRUD operations
+    /blog.ts           # Blog CRUD operations
+  /sanity              # Sanity CMS client and queries
+  /stripe              # Stripe client and price configs
+  /ebook               # Access control logic
 
-/content
-  /en.ts, /pt.ts       # Translation files
+/database              # SQL schema files for Supabase
 ```
-
-### Frontend Data Patterns
-
-**API Client:**
-- `lib/api-client.ts` - Wraps fetch, connects to FastAPI backend at `localhost:8000/api/v1`, falls back to mock data for unimplemented endpoints
-
-**Path Aliases:** Use `@/*` to import from project root
 
 ---
 
-## Backend Architecture (Clean Architecture / DDD)
+## Data Layer
 
-The backend follows **Clean Architecture** with clear separation of concerns:
+### Supabase (Primary)
+- **Auth**: User authentication via Supabase Auth
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Storage**: File uploads (ebook covers, blog images)
 
-```
-/backend
-  /src
-    /domain            # Business logic (no framework dependencies)
-      /entities        # Domain models (dataclasses with validation)
-      /repositories    # Abstract repository interfaces
-      /services        # Domain services (payment gateway interfaces)
+Key tables: `profiles`, `ebooks`, `chapters`, `purchases`, `subscriptions`, `blog_posts`
 
-    /application       # Use cases / application services
-      /services        # ProductManagementService, OrderManagementService, etc.
-
-    /infrastructure    # External concerns
-      /repositories    # SQLAlchemy implementations
-      /payment_gateways # Mock Stripe/MercadoPago gateways
-      /database.py     # SQLAlchemy engine/session setup
-
-    /api               # FastAPI layer
-      /v1
-        /endpoints     # Route handlers (products, orders, users, etc.)
-        /schemas.py    # Pydantic request/response models
-        /dependencies.py # Dependency injection setup
-
-    /tests
-      /unit            # Domain and application layer tests
-      /integration     # Repository tests with DB
-      /api             # API endpoint tests
-```
-
-### Key Domain Entities
-- `Product`, `Category` - E-book catalog
-- `Order`, `Cart`, `DownloadLink` - Purchase flow
-- `User`, `Profile` - Customer accounts
-- `Review`, `Refund` - Feedback and returns
-- `BlogPost`, `Faq`, `SiteConfig` - Content management
-
-### Dependency Injection
-All dependencies are wired in `api/v1/dependencies.py`:
-- Repository deps: `get_product_repo()`, `get_order_repo()`, etc.
-- Service deps: `get_product_management_service()`, `get_order_management_service()`, etc.
-- Services receive abstract repositories, implementations are injected at runtime
-
-### API Endpoints
-Base URL: `/api/v1`
-- `/products` - Product CRUD
-- `/orders` - Order management
-- `/users` - User profiles
-- `/content` - Blog, FAQ, site config
-- `/reviews` - Product reviews
-- `/refunds` - Refund requests
-- `/auth` - Authentication (stub)
-- `/admin` - Admin dashboard (stub)
-- `/uploads` - File uploads (stub)
-
-### Testing Pattern
-Tests use in-memory repositories for unit tests and SQLite for integration tests. Pytest fixtures handle DB setup/teardown.
+### Sanity CMS (Optional)
+- Used for some blog content
+- Queries in `/lib/sanity/queries.ts`
 
 ---
 
-## Database
+## API Routes
 
-### Railway PostgreSQL
-- Connection via `DATABASE_URL` environment variable
-- Schema defined in `/database/schema.sql`
-- Run migrations: `psql $DATABASE_URL < database/schema.sql`
+| Route | Purpose |
+|-------|---------|
+| `/api/checkout` | Creates Stripe checkout sessions for ebooks/subscriptions |
+| `/api/webhooks/stripe` | Handles Stripe events (payment success, subscription updates) |
+| `/api/subscription/portal` | Creates Stripe customer portal sessions |
 
-### Key Tables
-- `profiles`, `products`, `categories`, `orders`, `order_items`
-- `download_links`, `cart_items`, `reviews`, `refund_requests`
-- `blog_posts`, `faqs`, `site_config`, `feature_flags`, `email_logs`
+---
+
+## Authentication & Authorization
+
+- **User Auth**: Supabase Auth (email/password)
+- **Admin Auth**: Role-based via `profiles.role = 'admin'`
+- **Middleware**: `/lib/supabase/middleware.ts` protects admin routes
+- **E-book Access**: Checked via purchases table or active subscription
+
+---
+
+## Payments (Stripe)
+
+- Checkout sessions created in `/api/checkout`
+- Webhooks handle `checkout.session.completed`, `customer.subscription.*`
+- Purchases recorded in `purchases` table
+- Subscriptions tracked in `subscriptions` table
+
+---
+
+## Internationalization
+
+- Locale-based routing: `/en/*`, `/pt/*`
+- Middleware redirects to user's preferred language
+- Translations in `/content/en.ts`, `/content/pt.ts`
 
 ---
 
