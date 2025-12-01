@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, CreditCard, Crown, ExternalLink, LogOut, FileText } from 'lucide-react';
+import { BookOpen, Users, CreditCard, Crown, ExternalLink, LogOut, FileText, Wand2 } from 'lucide-react';
 
 interface Purchase {
   id: string;
@@ -222,13 +222,22 @@ export default function AdminDashboard() {
               <p className="text-neutral-400 mb-4">
                 Create and manage e-books and chapters.
               </p>
-              <Link
-                href="/admin/ebooks-manage"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-              >
-                <BookOpen className="w-4 h-4" />
-                Manage E-books
-              </Link>
+              <div className="flex gap-3">
+                <Link
+                  href="/admin/ebooks-manage"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Manage E-books
+                </Link>
+                <Link
+                  href="/admin/ebooks-manage/generate"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-purple-500/50 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors"
+                >
+                  <Wand2 className="w-4 h-4" />
+                  Generate
+                </Link>
+              </div>
             </CardContent>
           </Card>
 

@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { getEbooksAdmin, deleteEbook, type Ebook } from '@/lib/supabase/ebooks-client'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, BookOpen, Eye, EyeOff, ChevronRight } from 'lucide-react'
+import { Plus, Edit, Trash2, BookOpen, Eye, EyeOff, ChevronRight, Wand2 } from 'lucide-react'
 
 export default function EbooksManagePage() {
   const router = useRouter()
@@ -87,12 +87,20 @@ export default function EbooksManagePage() {
             <h1 className="text-3xl font-bold">E-book Management</h1>
             <p className="text-gray-400 mt-1">Create and manage your e-books</p>
           </div>
-          <Link href="/admin/ebooks-manage/new">
-            <Button className="bg-orange-500 hover:bg-orange-600">
-              <Plus className="w-4 h-4 mr-2" />
-              New E-book
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/admin/ebooks-manage/generate">
+              <Button variant="ghost" className="border border-purple-500/50 text-purple-400 hover:bg-purple-500/10">
+                <Wand2 className="w-4 h-4 mr-2" />
+                Generate with AI
+              </Button>
+            </Link>
+            <Link href="/admin/ebooks-manage/new">
+              <Button className="bg-orange-500 hover:bg-orange-600">
+                <Plus className="w-4 h-4 mr-2" />
+                New E-book
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Ebooks List */}
@@ -101,12 +109,20 @@ export default function EbooksManagePage() {
             <BookOpen className="w-16 h-16 mx-auto text-gray-600 mb-4" />
             <h2 className="text-xl font-semibold mb-2">No e-books yet</h2>
             <p className="text-gray-400 mb-6">Create your first e-book to get started.</p>
-            <Link href="/admin/ebooks-manage/new">
-              <Button className="bg-orange-500 hover:bg-orange-600">
-                <Plus className="w-4 h-4 mr-2" />
-                Create E-book
-              </Button>
-            </Link>
+            <div className="flex justify-center gap-4">
+              <Link href="/admin/ebooks-manage/generate">
+                <Button variant="ghost" className="border border-purple-500/50 text-purple-400 hover:bg-purple-500/10">
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Generate with AI
+                </Button>
+              </Link>
+              <Link href="/admin/ebooks-manage/new">
+                <Button className="bg-orange-500 hover:bg-orange-600">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Manually
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
