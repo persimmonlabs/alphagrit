@@ -21,6 +21,8 @@ import {
   Wand2,
   FileUp,
   ChevronRight,
+  Zap,
+  ImageOff,
 } from 'lucide-react'
 
 // API base URL - configurable via env
@@ -51,6 +53,9 @@ export default function GenerateEbookPage() {
   // AI mode state
   const [topic, setTopic] = useState('')
   const [numChapters, setNumChapters] = useState(5)
+
+  // Skip images option (faster generation)
+  const [skipImages, setSkipImages] = useState(false)
 
   // Job tracking
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -120,7 +125,11 @@ export default function GenerateEbookPage() {
       formData.append('pdf_en', pdfEn)
       formData.append('pdf_pt', pdfPt)
 
-      const response = await fetch(`${EBOOK_GENERATOR_API}/api/v1/ebooks/from-pdfs`, {
+      const endpoint = skipImages
+        ? `${EBOOK_GENERATOR_API}/api/v1/ebooks/from-pdfs-no-images`
+        : `${EBOOK_GENERATOR_API}/api/v1/ebooks/from-pdfs`
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -140,7 +149,7 @@ export default function GenerateEbookPage() {
         job_id: data.job_id,
         status: 'pending',
         progress: 0,
-        current_step: 'Starting...',
+        current_step: 'Agent Morpheus is waking up...',
         ebook_id: null,
         error: null,
       })
@@ -167,7 +176,11 @@ export default function GenerateEbookPage() {
       formData.append('topic', topic)
       formData.append('num_chapters', numChapters.toString())
 
-      const response = await fetch(`${EBOOK_GENERATOR_API}/api/v1/ebooks/from-text`, {
+      const endpoint = skipImages
+        ? `${EBOOK_GENERATOR_API}/api/v1/ebooks/from-text-no-images`
+        : `${EBOOK_GENERATOR_API}/api/v1/ebooks/from-text`
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -187,7 +200,7 @@ export default function GenerateEbookPage() {
         job_id: data.job_id,
         status: 'pending',
         progress: 0,
-        current_step: 'Starting AI generation...',
+        current_step: 'Agent Morpheus is entering the matrix...',
         ebook_id: null,
         error: null,
       })
@@ -231,10 +244,10 @@ export default function GenerateEbookPage() {
           </Link>
           <h1 className="text-2xl md:text-3xl font-bold mt-2 flex items-center gap-2 md:gap-3">
             <Wand2 className="w-6 h-6 md:w-8 md:h-8 text-orange-500" />
-            Generate New E-book
+            Generate with Agent Morpheus
           </h1>
           <p className="text-gray-400 mt-2 text-sm md:text-base">
-            Create a new e-book using AI or by uploading PDF files
+            Let Agent Morpheus craft your e-book from PDFs or pure imagination
           </p>
         </div>
 
@@ -387,9 +400,29 @@ export default function GenerateEbookPage() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              {/* Skip Images Toggle */}
+              <div className="mt-6 flex items-center justify-between p-4 bg-neutral-800 border border-neutral-700 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${skipImages ? 'bg-green-500/10' : 'bg-neutral-700'}`}>
+                    {skipImages ? <Zap className="w-5 h-5 text-green-500" /> : <ImageOff className="w-5 h-5 text-gray-500" />}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Fast Mode</p>
+                    <p className="text-xs text-gray-500">Skip image generation for faster processing</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSkipImages(!skipImages)}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${skipImages ? 'bg-green-500' : 'bg-neutral-600'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${skipImages ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                 <p className="text-sm text-blue-300">
-                  <strong>Tip:</strong> Make sure both PDFs contain the same content in their respective languages. The system will analyze the structure and create matching chapters.
+                  <strong>Tip:</strong> Make sure both PDFs contain the same content in their respective languages. Agent Morpheus will analyze the structure and create matching chapters.
                 </p>
               </div>
             </div>
@@ -411,12 +444,12 @@ export default function GenerateEbookPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Starting...
+                    Summoning Morpheus...
                   </>
                 ) : (
                   <>
                     <Wand2 className="w-4 h-4 mr-2" />
-                    Generate E-book
+                    Unleash Morpheus
                   </>
                 )}
               </Button>
@@ -481,9 +514,29 @@ export default function GenerateEbookPage() {
                   </div>
                 </div>
 
+                {/* Skip Images Toggle */}
+                <div className="flex items-center justify-between p-4 bg-neutral-800 border border-neutral-700 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${skipImages ? 'bg-green-500/10' : 'bg-neutral-700'}`}>
+                      {skipImages ? <Zap className="w-5 h-5 text-green-500" /> : <ImageOff className="w-5 h-5 text-gray-500" />}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Fast Mode</p>
+                      <p className="text-xs text-gray-500">Skip image generation for faster processing</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSkipImages(!skipImages)}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${skipImages ? 'bg-green-500' : 'bg-neutral-600'}`}
+                  >
+                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${skipImages ? 'translate-x-7' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+
                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                   <p className="text-sm text-purple-300">
-                    <strong>How it works:</strong> AI will research your topic using Perplexity, then write comprehensive chapters in both English and Portuguese. This may take 5-15 minutes depending on the number of chapters.
+                    Agent Morpheus will research your topic, then write comprehensive chapters in both English and Portuguese. {skipImages ? 'Fast mode: ~3-8 minutes.' : 'With images: ~5-15 minutes.'}
                   </p>
                 </div>
               </div>
@@ -506,12 +559,12 @@ export default function GenerateEbookPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Starting...
+                    Summoning Morpheus...
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Generate with AI
+                    Unleash Morpheus
                   </>
                 )}
               </Button>
@@ -549,10 +602,10 @@ export default function GenerateEbookPage() {
 
               {/* Status Title */}
               <h2 className="text-xl md:text-2xl font-bold mb-2">
-                {job.status === 'pending' && 'Queued...'}
-                {job.status === 'processing' && 'Generating E-book...'}
-                {job.status === 'completed' && 'E-book Created!'}
-                {job.status === 'failed' && 'Generation Failed'}
+                {job.status === 'pending' && 'Morpheus is preparing...'}
+                {job.status === 'processing' && 'Morpheus is writing...'}
+                {job.status === 'completed' && 'Morpheus has delivered.'}
+                {job.status === 'failed' && 'Morpheus encountered an anomaly'}
               </h2>
 
               {/* Current Step */}
@@ -603,9 +656,10 @@ export default function GenerateEbookPage() {
                         setPdfPt(null)
                         setTopic('')
                         setNumChapters(5)
+                        setSkipImages(false)
                       }}
                     >
-                      Generate Another
+                      Summon Morpheus Again
                     </Button>
                   </>
                 )}
