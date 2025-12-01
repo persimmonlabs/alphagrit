@@ -329,6 +329,8 @@ export default function EditChapterPage() {
                     <TipTapEditor
                       content={form.content_en}
                       onChange={(content) => setForm(prev => ({ ...prev, content_en: content }))}
+                      imageBucket="ebook-covers"
+                      imageFolder={`chapters/${chapterId}`}
                     />
                   </div>
                 </div>
@@ -350,6 +352,8 @@ export default function EditChapterPage() {
                     <TipTapEditor
                       content={form.content_pt}
                       onChange={(content) => setForm(prev => ({ ...prev, content_pt: content }))}
+                      imageBucket="ebook-covers"
+                      imageFolder={`chapters/${chapterId}`}
                     />
                   </div>
                 </div>

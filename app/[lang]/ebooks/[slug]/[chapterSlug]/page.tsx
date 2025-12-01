@@ -2,6 +2,7 @@ import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import { getChapterBySlug } from '@/lib/supabase/ebooks';
 import { hasEbookAccess } from '@/lib/supabase/server';
+import { RichContentRenderer } from '@/components/ebook';
 
 export const dynamic = 'force-dynamic';
 import { notFound, redirect } from 'next/navigation';
@@ -124,10 +125,7 @@ export default async function ChapterReaderPage({
           </header>
 
           {/* Chapter Body */}
-          <div
-            className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-[var(--ebook-primary)] prose-img:rounded-lg"
-            dangerouslySetInnerHTML={{ __html: chapterContent || '' }}
-          />
+          <RichContentRenderer content={chapterContent || ''} />
 
           {/* Chapter Navigation */}
           <nav className="mt-12 pt-8 border-t border-border">

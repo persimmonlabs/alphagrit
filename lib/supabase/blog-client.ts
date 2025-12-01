@@ -1,0 +1,162 @@
+import { createClient } from './client'
+
+// Types for blog posts
+export interface BlogPost {
+  id: string
+  title_en: string
+  title_pt: string | null
+  slug: string
+  excerpt_en: string | null
+  excerpt_pt: string | null
+  content_en: string | null
+  content_pt: string | null
+  cover_image_url: string | null
+  author_name: string
+  author_avatar_url: string | null
+  category: string
+  tags: string[]
+  estimated_read_time_minutes: number
+  is_featured: boolean
+  is_published: boolean
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// Generate slug from title
+export function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+// Get all blog posts for admin (includes drafts)
+export async function getBlogPostsAdmin(): Promise<BlogPost[]> {
+  const supabase = createClient()
+  if (!supabase) return []
+
+  const { data: posts, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching blog posts:', error)
+    return []
+  }
+
+  return posts || []
+}
+
+// Get blog post by ID (for admin)
+export async function getBlogPostById(id: string): Promise<BlogPost | null> {
+  const supabase = createClient()
+  if (!supabase) return null
+
+  const { data: post, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error) {
+    console.error('Error fetching blog post:', error)
+    return null
+  }
+
+  return post
+}
+
+// Create blog post
+export async function createBlogPost(post: Partial<BlogPost>): Promise<BlogPost | null> {
+  const supabase = createClient()
+  if (!supabase) return null
+
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .insert(post)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating blog post:', error)
+    throw error
+  }
+
+  return data
+}
+
+// Update blog post
+export async function updateBlogPost(id: string, post: Partial<BlogPost>): Promise<BlogPost | null> {
+  const supabase = createClient()
+  if (!supabase) return null
+
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .update(post)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating blog post:', error)
+    throw error
+  }
+
+  return data
+}
+
+// Delete blog post
+export async function deleteBlogPost(id: string): Promise<boolean> {
+  const supabase = createClient()
+  if (!supabase) return false
+
+  const { error } = await supabase
+    .from('blog_posts')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting blog post:', error)
+    return false
+  }
+
+  return true
+}
+
+// Upload blog cover image
+export async function uploadBlogImage(file: File, postId: string): Promise<string | null> {
+  const supabase = createClient()
+  if (!supabase) return null
+
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${postId}-${Date.now()}.${fileExt}`
+  const filePath = `covers/${fileName}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('blog-images')
+    .upload(filePath, file, { upsert: true })
+
+  if (uploadError) {
+    console.error('Error uploading cover:', uploadError)
+    return null
+  }
+
+  const { data } = supabase.storage
+    .from('blog-images')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
+}
+
+// Blog categories
+export const BLOG_CATEGORIES = [
+  { value: 'general', label: 'General' },
+  { value: 'mindset', label: 'Mindset' },
+  { value: 'productivity', label: 'Productivity' },
+  { value: 'fitness', label: 'Fitness' },
+  { value: 'nutrition', label: 'Nutrition' },
+  { value: 'lifestyle', label: 'Lifestyle' },
+  { value: 'motivation', label: 'Motivation' },
+]

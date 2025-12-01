@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, CreditCard, Crown, ExternalLink, LogOut } from 'lucide-react';
+import { BookOpen, Users, CreditCard, Crown, ExternalLink, LogOut, FileText } from 'lucide-react';
 
 interface Purchase {
   id: string;
@@ -210,26 +210,49 @@ export default function AdminDashboard() {
         </div>
 
         {/* Content Management */}
-        <Card className="bg-neutral-900 border-neutral-800 mb-8">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-orange-500" />
-              E-book Content Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-neutral-400 mb-4">
-              Create and manage e-books and chapters directly from the admin panel.
-            </p>
-            <Link
-              href="/admin/ebooks-manage"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              <BookOpen className="w-4 h-4" />
-              Manage E-books
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-orange-500" />
+                E-book Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-neutral-400 mb-4">
+                Create and manage e-books and chapters.
+              </p>
+              <Link
+                href="/admin/ebooks-manage"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                Manage E-books
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <FileText className="w-5 h-5 text-orange-500" />
+                Blog Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-neutral-400 mb-4">
+                Create and manage blog posts.
+              </p>
+              <Link
+                href="/admin/blog"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                Manage Blog
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Purchases */}

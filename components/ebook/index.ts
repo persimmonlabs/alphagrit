@@ -3,6 +3,9 @@
 // Block Renderer
 export { BlockRenderer } from './BlockRenderer';
 
+// Rich Content Renderer (for HTML with embedded blocks)
+export { RichContentRenderer, richContentStyles } from './RichContentRenderer';
+
 // Block Components
 export { TextBlock } from './blocks/TextBlock';
 export { ImageBlock } from './blocks/ImageBlock';
