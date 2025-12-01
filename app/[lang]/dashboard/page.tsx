@@ -6,7 +6,7 @@ import { getEbooks } from '@/lib/supabase/ebooks';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, Crown, Clock, ChevronRight } from 'lucide-react';
+import { BookOpen, Crown, Clock, ChevronRight, ArrowLeft } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,13 +61,22 @@ export default async function DashboardPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        {/* Back Link */}
+        <Link
+          href={`/${lang}`}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {lang === 'pt' ? 'Início' : 'Home'}
+        </Link>
+
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">
+        <div className="mb-8 md:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">
             {lang === 'pt' ? 'Minha Biblioteca' : 'My Library'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             {lang === 'pt'
               ? `Bem-vindo de volta, ${profile?.full_name || user.email}`
               : `Welcome back, ${profile?.full_name || user.email}`}
@@ -76,14 +85,14 @@ export default async function DashboardPage({
 
         {/* Subscription Status */}
         {hasSubscription && (
-          <div className="mb-8 p-6 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl">
-            <div className="flex items-center gap-3 mb-2">
-              <Crown className="w-6 h-6 text-orange-500" />
-              <h2 className="text-xl font-bold text-foreground">
+          <div className="mb-6 md:mb-8 p-4 md:p-6 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl">
+            <div className="flex items-center gap-2 md:gap-3 mb-2">
+              <Crown className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
+              <h2 className="text-lg md:text-xl font-bold text-foreground">
                 {lang === 'pt' ? 'Assinante Premium' : 'Premium Subscriber'}
               </h2>
             </div>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
               {lang === 'pt'
                 ? 'Você tem acesso ilimitado a todos os e-books.'
                 : 'You have unlimited access to all e-books.'}
@@ -121,7 +130,7 @@ export default async function DashboardPage({
 
         {/* E-books Grid */}
         {hasAccess && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {accessibleEbooks.map((ebook) => {
               const title = lang === 'pt' && ebook.title_pt ? ebook.title_pt : ebook.title_en;
               const chapterCount = ebook.chapters?.length || 0;
@@ -156,12 +165,12 @@ export default async function DashboardPage({
                       </span>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-orange-500 transition-colors">
+                  <div className="p-3 md:p-4">
+                    <h3 className="text-sm md:text-base font-semibold text-foreground mb-1 md:mb-2 line-clamp-2 group-hover:text-orange-500 transition-colors">
                       {title}
                     </h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <BookOpen className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground">
+                      <BookOpen className="w-3 h-3 md:w-4 md:h-4" />
                       <span>
                         {chapterCount} {lang === 'pt' ? 'capítulos' : 'chapters'}
                       </span>

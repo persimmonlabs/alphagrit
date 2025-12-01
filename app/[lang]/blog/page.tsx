@@ -1,7 +1,7 @@
 import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import Link from 'next/link';
-import { FileText, Clock, ArrowRight, Star } from 'lucide-react';
+import { FileText, Clock, ArrowRight, Star, ArrowLeft } from 'lucide-react';
 import { getBlogPosts, getFeaturedBlogPosts, type BlogPost } from '@/lib/supabase/blog';
 
 export const dynamic = 'force-dynamic';
@@ -62,11 +62,19 @@ export default async function BlogIndexPage({
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-b from-neutral-900 to-background border-b border-neutral-800">
-        <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground text-center mb-4">
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          {/* Back Link */}
+          <Link
+            href={`/${lang}`}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {lang === 'pt' ? 'Início' : 'Home'}
+          </Link>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-foreground text-center mb-4">
             {lang === 'pt' ? 'Blog' : 'Blog'}
           </h1>
-          <p className="text-xl text-muted-foreground text-center max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto">
             {lang === 'pt'
               ? 'Artigos sobre mentalidade, produtividade, fitness e muito mais.'
               : 'Articles about mindset, productivity, fitness, and more.'}
@@ -74,15 +82,15 @@ export default async function BlogIndexPage({
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <section className="mb-16">
-            <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">
-              <Star className="w-6 h-6 text-yellow-500" />
+          <section className="mb-12 md:mb-16">
+            <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 flex items-center gap-2">
+              <Star className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
               {lang === 'pt' ? 'Destaques' : 'Featured'}
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
               {featuredPosts.map((post) => (
                 <Link
                   key={post.id}
@@ -102,18 +110,18 @@ export default async function BlogIndexPage({
                       <FileText className="w-12 h-12 text-neutral-600" />
                     </div>
                   )}
-                  <div className="p-6">
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                  <div className="p-4 md:p-6">
+                    <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                       <span className="px-2 py-1 bg-neutral-800 rounded capitalize">{post.category}</span>
                       <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="w-3 h-3 md:w-4 md:h-4" />
                         {post.estimated_read_time_minutes} min
                       </span>
                     </div>
-                    <h3 className="text-xl font-semibold mb-2 group-hover:text-orange-500 transition-colors">
+                    <h3 className="text-lg md:text-xl font-semibold mb-2 group-hover:text-orange-500 transition-colors line-clamp-2">
                       {getTitle(post, lang)}
                     </h3>
-                    <p className="text-muted-foreground line-clamp-2">
+                    <p className="text-sm md:text-base text-muted-foreground line-clamp-2">
                       {getExcerpt(post, lang)}
                     </p>
                   </div>
@@ -125,18 +133,18 @@ export default async function BlogIndexPage({
 
         {/* All Posts */}
         <section>
-          <h2 className="text-2xl font-bold mb-8">
+          <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">
             {lang === 'pt' ? 'Todos os Artigos' : 'All Articles'}
           </h2>
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/${lang}/blog/${post.slug}`}
-                className="group flex flex-col md:flex-row gap-6 bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 hover:border-orange-500/50 transition-colors"
+                className="group flex flex-col sm:flex-row gap-4 md:gap-6 bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 md:p-6 hover:border-orange-500/50 transition-colors"
               >
                 {post.cover_image_url ? (
-                  <div className="w-full md:w-48 h-32 flex-shrink-0 overflow-hidden rounded-lg">
+                  <div className="w-full sm:w-40 md:w-48 h-40 sm:h-28 md:h-32 flex-shrink-0 overflow-hidden rounded-lg">
                     <img
                       src={post.cover_image_url}
                       alt={getTitle(post, lang)}
@@ -144,23 +152,23 @@ export default async function BlogIndexPage({
                     />
                   </div>
                 ) : (
-                  <div className="w-full md:w-48 h-32 flex-shrink-0 bg-neutral-800 rounded-lg flex items-center justify-center">
+                  <div className="w-full sm:w-40 md:w-48 h-40 sm:h-28 md:h-32 flex-shrink-0 bg-neutral-800 rounded-lg flex items-center justify-center">
                     <FileText className="w-8 h-8 text-neutral-600" />
                   </div>
                 )}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground mb-2">
                     <span className="px-2 py-1 bg-neutral-800 rounded capitalize">{post.category}</span>
-                    <span>{formatDate(post.published_at, lang)}</span>
+                    <span className="hidden sm:inline">{formatDate(post.published_at, lang)}</span>
                     <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3 h-3 md:w-4 md:h-4" />
                       {post.estimated_read_time_minutes} min
                     </span>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 group-hover:text-orange-500 transition-colors">
+                  <h3 className="text-lg md:text-xl font-semibold mb-2 group-hover:text-orange-500 transition-colors line-clamp-2">
                     {getTitle(post, lang)}
                   </h3>
-                  <p className="text-muted-foreground line-clamp-2 mb-3">
+                  <p className="text-sm md:text-base text-muted-foreground line-clamp-2 mb-3">
                     {getExcerpt(post, lang)}
                   </p>
                   <span className="inline-flex items-center gap-1 text-orange-500 font-medium text-sm group-hover:gap-2 transition-all">

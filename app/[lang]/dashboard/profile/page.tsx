@@ -4,7 +4,7 @@ import { getUser, getProfile } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Globe, DollarSign, Crown, Settings } from 'lucide-react';
+import { User, Mail, Globe, DollarSign, Crown, Settings, ArrowLeft } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,28 +42,37 @@ export default async function ProfilePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
+        {/* Back Link */}
+        <Link
+          href={`/${lang}/dashboard`}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {lang === 'pt' ? 'Biblioteca' : 'Library'}
+        </Link>
+
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold text-foreground mb-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-foreground mb-2">
             {lang === 'pt' ? 'Meu Perfil' : 'My Profile'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             {lang === 'pt' ? 'Gerencie suas informações' : 'Manage your information'}
           </p>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-card border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-muted-foreground" />
+        <div className="bg-card border border-border rounded-xl p-4 md:p-6 mb-4 md:mb-6">
+          <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-muted rounded-full flex items-center justify-center">
+              <User className="w-6 h-6 md:w-8 md:h-8 text-muted-foreground" />
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">
+            <div className="min-w-0">
+              <h2 className="text-lg md:text-xl font-semibold text-foreground truncate">
                 {profile?.full_name || user.email?.split('@')[0]}
               </h2>
-              <p className="text-muted-foreground">{user.email}</p>
+              <p className="text-sm md:text-base text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>
 
@@ -89,9 +98,9 @@ export default async function ProfilePage({
         </div>
 
         {/* Subscription Status */}
-        <div className="bg-card border border-border rounded-xl p-6 mb-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Crown className="w-5 h-5" />
+        <div className="bg-card border border-border rounded-xl p-4 md:p-6 mb-4 md:mb-6">
+          <h3 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4 flex items-center gap-2">
+            <Crown className="w-4 h-4 md:w-5 md:h-5" />
             {lang === 'pt' ? 'Assinatura' : 'Subscription'}
           </h3>
 
@@ -140,37 +149,27 @@ export default async function ProfilePage({
         </div>
 
         {/* Purchase Stats */}
-        <div className="bg-card border border-border rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Settings className="w-5 h-5" />
+        <div className="bg-card border border-border rounded-xl p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4 flex items-center gap-2">
+            <Settings className="w-4 h-4 md:w-5 md:h-5" />
             {lang === 'pt' ? 'Estatísticas' : 'Statistics'}
           </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/50 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">{purchaseCount || 0}</p>
-              <p className="text-sm text-muted-foreground">
+          <div className="grid grid-cols-2 gap-3 md:gap-4">
+            <div className="bg-muted/50 rounded-lg p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-foreground">{purchaseCount || 0}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">
                 {lang === 'pt' ? 'E-books comprados' : 'E-books purchased'}
               </p>
             </div>
-            <div className="bg-muted/50 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">
+            <div className="bg-muted/50 rounded-lg p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-foreground">
                 {hasSubscription ? '∞' : (purchaseCount || 0)}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs md:text-sm text-muted-foreground">
                 {lang === 'pt' ? 'E-books acessíveis' : 'Accessible e-books'}
               </p>
             </div>
           </div>
-        </div>
-
-        {/* Back to Dashboard */}
-        <div className="mt-8 text-center">
-          <Link
-            href={`/${lang}/dashboard`}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← {lang === 'pt' ? 'Voltar para a biblioteca' : 'Back to library'}
-          </Link>
         </div>
       </div>
     </div>

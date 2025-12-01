@@ -1,7 +1,7 @@
 import { getDictionary } from '@/lib/dictionary'
 import type { Locale } from '@/i18n-config'
 import Link from 'next/link'
-import { Mail, MessageSquare } from 'lucide-react'
+import { Mail, MessageSquare, ArrowLeft } from 'lucide-react'
 
 export default async function ContactPage({
   params: { lang },
@@ -15,30 +15,31 @@ export default async function ContactPage({
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4">
-          <Link href={`/${lang}`} className="text-primary hover:opacity-80">
-            ← {isPt ? 'Voltar' : 'Back'}
+          <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            {isPt ? 'Início' : 'Home'}
           </Link>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-2xl">
-        <h1 className="text-4xl font-bold mb-4">
+      <main className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">
           {isPt ? 'Entre em Contato' : 'Contact Us'}
         </h1>
-        <p className="text-muted-foreground mb-12">
+        <p className="text-sm md:text-base text-muted-foreground mb-8 md:mb-12">
           {isPt
             ? 'Tem alguma dúvida ou precisa de ajuda? Estamos aqui para ajudar.'
             : 'Have a question or need help? We\'re here for you.'}
         </p>
 
-        <div className="space-y-8">
-          <div className="bg-card border border-border rounded-xl p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                <Mail className="w-6 h-6 text-primary" />
+        <div className="space-y-4 md:space-y-8">
+          <div className="bg-card border border-border rounded-xl p-4 md:p-6">
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                <Mail className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold mb-2">
+                <h2 className="text-lg md:text-xl font-semibold mb-2">
                   {isPt ? 'Suporte por Email' : 'Email Support'}
                 </h2>
                 <p className="text-muted-foreground mb-4">
@@ -56,13 +57,13 @@ export default async function ContactPage({
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                <MessageSquare className="w-6 h-6 text-primary" />
+          <div className="bg-card border border-border rounded-xl p-4 md:p-6">
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold mb-2">
+                <h2 className="text-lg md:text-xl font-semibold mb-2">
                   {isPt ? 'Perguntas Frequentes' : 'FAQ'}
                 </h2>
                 <p className="text-muted-foreground mb-4">

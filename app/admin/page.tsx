@@ -155,62 +155,62 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="container mx-auto p-8">
+      <main className="container mx-auto p-4 md:p-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="bg-neutral-900 border-neutral-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
-                <CreditCard className="w-4 h-4" />
-                Total Revenue
+            <CardHeader className="p-3 md:pb-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-neutral-400 flex items-center gap-1.5 md:gap-2">
+                <CreditCard className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Total</span> Revenue
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-orange-500">
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-orange-500">
                 ${stats.totalRevenue.toFixed(2)}
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-neutral-900 border-neutral-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
-                <BookOpen className="w-4 h-4" />
-                E-book Purchases
+            <CardHeader className="p-3 md:pb-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-neutral-400 flex items-center gap-1.5 md:gap-2">
+                <BookOpen className="w-3 h-3 md:w-4 md:h-4" />
+                Purchases
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{stats.totalPurchases}</div>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-white">{stats.totalPurchases}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-neutral-900 border-neutral-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
-                <Crown className="w-4 h-4" />
-                Active Subscriptions
+            <CardHeader className="p-3 md:pb-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-neutral-400 flex items-center gap-1.5 md:gap-2">
+                <Crown className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Active</span> Subs
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{stats.totalSubscriptions}</div>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-white">{stats.totalSubscriptions}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-neutral-900 border-neutral-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Total Users
+            <CardHeader className="p-3 md:pb-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-neutral-400 flex items-center gap-1.5 md:gap-2">
+                <Users className="w-3 h-3 md:w-4 md:h-4" />
+                Users
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{stats.totalUsers}</div>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-white">{stats.totalUsers}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Content Management */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid gap-4 md:gap-6 md:grid-cols-2 mb-6 md:mb-8">
           <Card className="bg-neutral-900 border-neutral-800">
             <CardHeader>
               <CardTitle className="text-xl flex items-center gap-2">
@@ -263,7 +263,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
           {/* Recent Purchases */}
           <Card className="bg-neutral-900 border-neutral-800">
             <CardHeader>
@@ -343,7 +343,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-6 md:mt-8 grid gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3">
           <a
             href="https://dashboard.stripe.com"
             target="_blank"

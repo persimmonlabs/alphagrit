@@ -221,36 +221,36 @@ export default function GenerateEbookPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-black text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link href="/admin/ebooks-manage" className="text-gray-400 hover:text-white text-sm mb-4 inline-flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" />
             Back to E-books
           </Link>
-          <h1 className="text-3xl font-bold mt-2 flex items-center gap-3">
-            <Wand2 className="w-8 h-8 text-orange-500" />
+          <h1 className="text-2xl md:text-3xl font-bold mt-2 flex items-center gap-2 md:gap-3">
+            <Wand2 className="w-6 h-6 md:w-8 md:h-8 text-orange-500" />
             Generate New E-book
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-gray-400 mt-2 text-sm md:text-base">
             Create a new e-book using AI or by uploading PDF files
           </p>
         </div>
 
         {/* Mode Selection */}
         {!mode && !job && (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
             {/* Upload PDFs Option */}
             <button
               onClick={() => setMode('pdf')}
-              className="group p-8 bg-neutral-900 border border-neutral-800 rounded-xl hover:border-orange-500/50 transition-all text-left"
+              className="group p-5 md:p-8 bg-neutral-900 border border-neutral-800 rounded-xl hover:border-orange-500/50 transition-all text-left"
             >
-              <div className="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <FileUp className="w-7 h-7 text-blue-500" />
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-blue-500/10 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <FileUp className="w-6 h-6 md:w-7 md:h-7 text-blue-500" />
               </div>
-              <h2 className="text-xl font-semibold mb-2">Upload PDFs</h2>
-              <p className="text-gray-400 text-sm mb-4">
+              <h2 className="text-lg md:text-xl font-semibold mb-2">Upload PDFs</h2>
+              <p className="text-gray-400 text-sm mb-3 md:mb-4">
                 Upload existing PDF files in English and Portuguese. The system will extract content and create chapters automatically.
               </p>
               <div className="flex items-center text-orange-500 text-sm font-medium">
@@ -261,13 +261,13 @@ export default function GenerateEbookPage() {
             {/* AI Generation Option */}
             <button
               onClick={() => setMode('ai')}
-              className="group p-8 bg-neutral-900 border border-neutral-800 rounded-xl hover:border-orange-500/50 transition-all text-left"
+              className="group p-5 md:p-8 bg-neutral-900 border border-neutral-800 rounded-xl hover:border-orange-500/50 transition-all text-left"
             >
-              <div className="w-14 h-14 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Sparkles className="w-7 h-7 text-purple-500" />
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-purple-500/10 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-purple-500" />
               </div>
-              <h2 className="text-xl font-semibold mb-2">Generate with AI</h2>
-              <p className="text-gray-400 text-sm mb-4">
+              <h2 className="text-lg md:text-xl font-semibold mb-2">Generate with AI</h2>
+              <p className="text-gray-400 text-sm mb-3 md:mb-4">
                 Describe your topic and let AI research and write the entire e-book in both English and Portuguese.
               </p>
               <div className="flex items-center text-orange-500 text-sm font-medium">
@@ -279,10 +279,10 @@ export default function GenerateEbookPage() {
 
         {/* PDF Upload Mode */}
         {mode === 'pdf' && !job && (
-          <form onSubmit={handlePdfSubmit} className="space-y-6">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
+          <form onSubmit={handlePdfSubmit} className="space-y-4 md:space-y-6">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+                <h2 className="text-base md:text-lg font-semibold flex items-center gap-2">
                   <FileUp className="w-5 h-5 text-blue-500" />
                   Upload PDF Files
                 </h2>
@@ -295,14 +295,14 @@ export default function GenerateEbookPage() {
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-4 md:gap-6 md:grid-cols-2">
                 {/* English PDF */}
                 <div>
-                  <Label className="mb-2 block">English PDF *</Label>
+                  <Label className="mb-2 block text-sm">English PDF *</Label>
                   <div
                     onDrop={(e) => handleDrop(e, setPdfEn, 'English')}
                     onDragOver={(e) => e.preventDefault()}
-                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                    className={`border-2 border-dashed rounded-xl p-4 md:p-8 text-center transition-colors ${
                       pdfEn
                         ? 'border-green-500/50 bg-green-500/5'
                         : 'border-neutral-700 hover:border-neutral-600'
@@ -343,11 +343,11 @@ export default function GenerateEbookPage() {
 
                 {/* Portuguese PDF */}
                 <div>
-                  <Label className="mb-2 block">Portuguese PDF *</Label>
+                  <Label className="mb-2 block text-sm">Portuguese PDF *</Label>
                   <div
                     onDrop={(e) => handleDrop(e, setPdfPt, 'Portuguese')}
                     onDragOver={(e) => e.preventDefault()}
-                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                    className={`border-2 border-dashed rounded-xl p-4 md:p-8 text-center transition-colors ${
                       pdfPt
                         ? 'border-green-500/50 bg-green-500/5'
                         : 'border-neutral-700 hover:border-neutral-600'
@@ -426,10 +426,10 @@ export default function GenerateEbookPage() {
 
         {/* AI Generation Mode */}
         {mode === 'ai' && !job && (
-          <form onSubmit={handleAiSubmit} className="space-y-6">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
+          <form onSubmit={handleAiSubmit} className="space-y-4 md:space-y-6">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+                <h2 className="text-base md:text-lg font-semibold flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-500" />
                   AI-Powered Generation
                 </h2>
@@ -521,34 +521,34 @@ export default function GenerateEbookPage() {
 
         {/* Job Progress */}
         {job && (
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-8">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 md:p-8">
             <div className="text-center">
               {/* Status Icon */}
-              <div className="mb-6">
+              <div className="mb-4 md:mb-6">
                 {job.status === 'pending' && (
-                  <div className="w-20 h-20 mx-auto bg-yellow-500/10 rounded-full flex items-center justify-center">
-                    <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-yellow-500/10 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 md:w-10 md:h-10 text-yellow-500 animate-spin" />
                   </div>
                 )}
                 {job.status === 'processing' && (
-                  <div className="w-20 h-20 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center">
-                    <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 md:w-10 md:h-10 text-blue-500 animate-spin" />
                   </div>
                 )}
                 {job.status === 'completed' && (
-                  <div className="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-10 h-10 text-green-500" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-8 h-8 md:w-10 md:h-10 text-green-500" />
                   </div>
                 )}
                 {job.status === 'failed' && (
-                  <div className="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
-                    <XCircle className="w-10 h-10 text-red-500" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
+                    <XCircle className="w-8 h-8 md:w-10 md:h-10 text-red-500" />
                   </div>
                 )}
               </div>
 
               {/* Status Title */}
-              <h2 className="text-2xl font-bold mb-2">
+              <h2 className="text-xl md:text-2xl font-bold mb-2">
                 {job.status === 'pending' && 'Queued...'}
                 {job.status === 'processing' && 'Generating E-book...'}
                 {job.status === 'completed' && 'E-book Created!'}
@@ -556,13 +556,13 @@ export default function GenerateEbookPage() {
               </h2>
 
               {/* Current Step */}
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 mb-4 md:mb-6 text-sm md:text-base">
                 {job.current_step}
               </p>
 
               {/* Progress Bar */}
               {(job.status === 'pending' || job.status === 'processing') && (
-                <div className="max-w-md mx-auto mb-6">
+                <div className="max-w-md mx-auto mb-4 md:mb-6">
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-gray-400">Progress</span>
                     <span className="text-orange-500 font-medium">{job.progress}%</span>
@@ -584,7 +584,7 @@ export default function GenerateEbookPage() {
               )}
 
               {/* Actions */}
-              <div className="flex justify-center gap-4 mt-8">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 mt-6 md:mt-8">
                 {job.status === 'completed' && job.ebook_id && (
                   <>
                     <Link href={`/admin/ebooks-manage/${job.ebook_id}`}>
