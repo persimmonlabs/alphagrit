@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 
 // API base URL - configurable via env
-const EBOOK_GENERATOR_API = process.env.NEXT_PUBLIC_EBOOK_GENERATOR_API || 'http://localhost:8000'
+const EBOOK_GENERATOR_API = process.env.NEXT_PUBLIC_EBOOK_GENERATOR || 'http://localhost:8000'
 
 type GenerationMode = 'pdf' | 'ai' | null
 type JobStatus = 'pending' | 'processing' | 'completed' | 'failed'
