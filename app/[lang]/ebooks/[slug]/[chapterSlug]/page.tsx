@@ -10,14 +10,30 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, BookOpen, Home } from 'lucide-react';
 
 export default async function ChapterReaderPage({
-  params: { lang, slug, chapterSlug },
+  params,
 }: {
   params: { lang: Locale; slug: string; chapterSlug: string };
 }) {
-  const dict = await getDictionary(lang);
+  // Safely extract params with fallbacks
+  const lang = params?.lang || 'en';
+  const slug = params?.slug || '';
+  const chapterSlug = params?.chapterSlug || '';
 
-  // Fetch ebook and chapter from Supabase
-  const result = await getChapterBySlug(slug, chapterSlug);
+  // Load dictionary with error handling
+  try {
+    await getDictionary(lang);
+  } catch (error) {
+    console.error('[Chapter Reader] Failed to load dictionary:', error);
+  }
+
+  // Fetch ebook and chapter from Supabase with error handling
+  let result = null;
+  try {
+    result = await getChapterBySlug(slug, chapterSlug);
+  } catch (error) {
+    console.error('[Chapter Reader] Failed to fetch chapter:', error);
+    notFound();
+  }
 
   if (!result || result.ebook.status !== 'active') {
     notFound();
@@ -30,8 +46,13 @@ export default async function ChapterReaderPage({
     notFound();
   }
 
-  // Check user access via Supabase
-  const hasAccess = await hasEbookAccess(ebook.id);
+  // Check user access via Supabase with error handling
+  let hasAccess = false;
+  try {
+    hasAccess = await hasEbookAccess(ebook.id);
+  } catch (error) {
+    console.error('[Chapter Reader] Failed to check access:', error);
+  }
 
   // If no access and not a free preview chapter, redirect to subscription page
   if (!hasAccess && !chapter.is_free_preview) {

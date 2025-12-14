@@ -11,16 +11,25 @@ import Image from 'next/image';
 import { BookOpen, Clock, ChevronRight, Crown, Sparkles } from 'lucide-react';
 
 export default async function EbooksCatalogPage({
-  params: { lang },
+  params,
 }: {
   params: { lang: Locale };
 }) {
-  const dict = await getDictionary(lang);
+  // Safely extract lang with fallback
+  const lang = params?.lang || 'en';
 
-  // Fetch all active ebooks from Supabase with error handling
+  // Initialize with safe defaults
   let ebooks: Awaited<ReturnType<typeof getEbooks>> = [];
   let hasSubscription = false;
 
+  // Fetch dictionary with error handling
+  try {
+    await getDictionary(lang);
+  } catch (error) {
+    console.error('[Ebooks Page] Failed to load dictionary:', error);
+  }
+
+  // Fetch all active ebooks from Supabase with error handling
   try {
     ebooks = await getEbooks();
   } catch (error) {

@@ -12,21 +12,41 @@ import Image from 'next/image';
 import { BookOpen, Clock, Lock, ChevronRight } from 'lucide-react';
 
 export default async function EbookOverviewPage({
-  params: { lang, slug },
+  params,
 }: {
   params: { lang: Locale; slug: string };
 }) {
-  const dict = await getDictionary(lang);
+  // Safely extract params with fallbacks
+  const lang = params?.lang || 'en';
+  const slug = params?.slug || '';
 
-  // Fetch ebook from Supabase
-  const ebook = await getEbookBySlug(slug);
+  // Load dictionary with error handling
+  try {
+    await getDictionary(lang);
+  } catch (error) {
+    console.error('[Ebook Detail] Failed to load dictionary:', error);
+  }
+
+  // Fetch ebook from Supabase with error handling
+  let ebook = null;
+  try {
+    ebook = await getEbookBySlug(slug);
+  } catch (error) {
+    console.error('[Ebook Detail] Failed to fetch ebook:', error);
+    notFound();
+  }
 
   if (!ebook || ebook.status !== 'active') {
     notFound();
   }
 
-  // Check user access via Supabase
-  const hasAccess = await hasEbookAccess(ebook.id);
+  // Check user access via Supabase with error handling
+  let hasAccess = false;
+  try {
+    hasAccess = await hasEbookAccess(ebook.id);
+  } catch (error) {
+    console.error('[Ebook Detail] Failed to check access:', error);
+  }
 
   // Get published chapters only
   const chapters = ebook.chapters || [];
