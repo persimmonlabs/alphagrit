@@ -17,12 +17,23 @@ export default async function EbooksCatalogPage({
 }) {
   const dict = await getDictionary(lang);
 
-  // Fetch all active ebooks from Supabase
-  const ebooks = await getEbooks();
+  // Fetch all active ebooks from Supabase with error handling
+  let ebooks: Awaited<ReturnType<typeof getEbooks>> = [];
+  let hasSubscription = false;
+
+  try {
+    ebooks = await getEbooks();
+  } catch (error) {
+    console.error('[Ebooks Page] Failed to fetch ebooks:', error);
+  }
 
   // Check subscription status
-  const user = await getUser();
-  const hasSubscription = await hasActiveSubscription();
+  try {
+    await getUser();
+    hasSubscription = await hasActiveSubscription();
+  } catch (error) {
+    console.error('[Ebooks Page] Failed to check subscription:', error);
+  }
 
   const title = lang === 'pt' ? 'E-Books' : 'E-Books';
   const subtitle = lang === 'pt'
