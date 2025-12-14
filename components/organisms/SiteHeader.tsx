@@ -46,13 +46,17 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
     router.refresh();
   };
 
+  const handleNavClick = () => {
+    setMobileMenuOpen(false);
+  };
+
   const navLinks = [
     { label: lang === 'pt' ? 'BLOG' : 'BLOG', href: `/${lang}/blog` },
     { label: lang === 'pt' ? 'EBOOKS' : 'EBOOKS', href: `/${lang}/ebooks` },
   ];
 
   const authLink = isLoggedIn
-    ? { label: lang === 'pt' ? 'PAINEL' : 'DASHBOARD', href: `/${lang}/dashboard` }
+    ? { label: lang === 'pt' ? 'CONTA' : 'ACCOUNT', href: `/${lang}/account` }
     : { label: lang === 'pt' ? 'ENTRAR' : 'LOGIN', href: `/${lang}/auth/login` };
 
   return (
