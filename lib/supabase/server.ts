@@ -22,15 +22,15 @@ export function createClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // Handle cookies in Server Components (read-only)
+          } catch {
+            // Server Components have read-only cookies - this is expected behavior
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // Handle cookies in Server Components (read-only)
+          } catch {
+            // Server Components have read-only cookies - this is expected behavior
           }
         },
       },
@@ -67,29 +67,21 @@ export async function isAdmin() {
   return profile?.role === 'admin'
 }
 
-// Check if user has access to an ebook (purchased or subscribed)
+// Check if user has access to an ebook (SUBSCRIPTION-ONLY MODEL)
+// All ebooks are accessible with an active subscription
+// Chapter 1 is always free (handled separately in canAccessChapter)
 export async function hasEbookAccess(ebookId: string) {
   const supabase = createClient()
   const user = await getUser()
   if (!user) return false
 
-  // Check for active subscription
+  // Only active subscription grants full ebook access
   const { data: subscription } = await supabase
     .from('subscriptions')
-    .select('*')
+    .select('id')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .single()
 
-  if (subscription) return true
-
-  // Check for individual purchase (check both ebook_id and legacy sanity_ebook_id)
-  const { data: purchase } = await supabase
-    .from('purchases')
-    .select('*')
-    .eq('user_id', user.id)
-    .or(`ebook_id.eq.${ebookId},sanity_ebook_id.eq.${ebookId}`)
-    .single()
-
-  return !!purchase
+  return !!subscription
 }

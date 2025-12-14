@@ -16,7 +16,6 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
     '<rootDir>/.next/',
     '<rootDir>/backend/',
-    '<rootDir>/sanity/',
   ],
   collectCoverageFrom: [
     'lib/**/*.{js,jsx,ts,tsx}',

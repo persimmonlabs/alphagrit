@@ -49,20 +49,10 @@ export interface Subscription {
   created_at: string
 }
 
-export interface Purchase {
-  id: string
-  user_id: string
-  sanity_ebook_id: string
-  stripe_payment_intent_id: string | null
-  amount_paid: number
-  currency: 'USD' | 'BRL'
-  created_at: string
-}
-
 export interface ReadingProgress {
   id: string
   user_id: string
-  sanity_ebook_id: string
+  ebook_id: string
   last_chapter_slug: string | null
   completion_percentage: number
   updated_at: string

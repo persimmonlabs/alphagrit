@@ -32,12 +32,6 @@ export default async function ProfilePage({
     .eq('status', 'active')
     .single();
 
-  // Fetch purchase count
-  const { count: purchaseCount } = await supabase
-    .from('purchases')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id);
-
   const hasSubscription = !!subscription;
 
   return (
@@ -148,27 +142,21 @@ export default async function ProfilePage({
           )}
         </div>
 
-        {/* Purchase Stats */}
+        {/* Access Info */}
         <div className="bg-card border border-border rounded-xl p-4 md:p-6">
           <h3 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4 flex items-center gap-2">
             <Settings className="w-4 h-4 md:w-5 md:h-5" />
-            {lang === 'pt' ? 'Estatísticas' : 'Statistics'}
+            {lang === 'pt' ? 'Acesso' : 'Access'}
           </h3>
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            <div className="bg-muted/50 rounded-lg p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-foreground">{purchaseCount || 0}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">
-                {lang === 'pt' ? 'E-books comprados' : 'E-books purchased'}
-              </p>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-foreground">
-                {hasSubscription ? '∞' : (purchaseCount || 0)}
-              </p>
-              <p className="text-xs md:text-sm text-muted-foreground">
-                {lang === 'pt' ? 'E-books acessíveis' : 'Accessible e-books'}
-              </p>
-            </div>
+          <div className="bg-muted/50 rounded-lg p-3 md:p-4 text-center">
+            <p className="text-xl md:text-2xl font-bold text-foreground">
+              {hasSubscription ? '∞' : '1'}
+            </p>
+            <p className="text-xs md:text-sm text-muted-foreground">
+              {hasSubscription
+                ? (lang === 'pt' ? 'Acesso ilimitado a todos os e-books' : 'Unlimited access to all e-books')
+                : (lang === 'pt' ? 'Apenas capítulos gratuitos (prévia)' : 'Free chapters only (preview)')}
+            </p>
           </div>
         </div>
       </div>

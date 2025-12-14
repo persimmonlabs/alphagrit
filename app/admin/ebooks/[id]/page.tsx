@@ -1,6 +1,0 @@
-import { redirect } from 'next/navigation';
-
-// E-book content is managed through Sanity Studio
-export default function AdminEbookDetailPage() {
-  redirect('/admin');
-}

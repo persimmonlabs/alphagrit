@@ -9,8 +9,8 @@ function getLocale(request: NextRequest): string {
   const negotiatorHeaders: Record<string, string> = {}
   request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
 
-  // @ts-ignore
-  let languages = new Negotiator({ headers: negotiatorHeaders }).languages()
+  // Negotiator types expect IncomingHttpHeaders but Record<string, string> works at runtime
+  let languages = new Negotiator({ headers: negotiatorHeaders as Negotiator.Headers }).languages()
 
   // Filter out invalid locales and wildcards
   languages = languages.filter((lang: string) => lang !== '*' && /^[a-z]{2}(-[A-Z]{2})?$/.test(lang))

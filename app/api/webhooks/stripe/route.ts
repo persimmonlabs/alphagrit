@@ -93,44 +93,8 @@ export async function POST(request: Request) {
 
         const metadata = session.metadata
 
-        if (metadata.type === 'ebook_purchase') {
-          // Validate required metadata (support both ebook_id and legacy sanity_ebook_id)
-          const ebookId = metadata.ebook_id || metadata.sanity_ebook_id
-          if (!metadata.user_id || !ebookId) {
-            console.error(`[Webhook ${webhookId}] Missing required metadata for ebook purchase`)
-            break
-          }
-
-          // Check for duplicate
-          const { data: existing } = await supabaseAdmin
-            .from('purchases')
-            .select('id')
-            .eq('stripe_payment_intent_id', session.payment_intent as string)
-            .single()
-
-          if (existing) {
-            console.info(`[Webhook ${webhookId}] Duplicate purchase ignored: ${session.payment_intent}`)
-            break
-          }
-
-          // Record purchase (store in ebook_id, keep sanity_ebook_id for legacy)
-          const { error: insertError } = await supabaseAdmin.from('purchases').insert({
-            user_id: metadata.user_id,
-            ebook_id: ebookId,
-            sanity_ebook_id: ebookId, // Keep for backwards compatibility
-            stripe_payment_intent_id: session.payment_intent as string,
-            amount_paid: session.amount_total || 0,
-            currency: metadata.currency || 'USD',
-          })
-
-          if (insertError) {
-            console.error(`[Webhook ${webhookId}] Failed to record purchase:`, insertError)
-            throw insertError
-          }
-
-          console.info(`[Webhook ${webhookId}] Purchase recorded: user=${metadata.user_id}, ebook=${ebookId}`)
-
-        } else if (metadata.type === 'subscription') {
+        // Only handle subscription checkouts (subscription-only model)
+        if (metadata.type === 'subscription') {
           if (!metadata.user_id || !session.subscription) {
             console.error(`[Webhook ${webhookId}] Missing required data for subscription`)
             break

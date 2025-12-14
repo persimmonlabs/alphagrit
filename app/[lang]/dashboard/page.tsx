@@ -34,30 +34,14 @@ export default async function DashboardPage({
     .eq('status', 'active')
     .single();
 
-  // Fetch user's individual purchases
-  const { data: purchases } = await supabase
-    .from('purchases')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-
   // Fetch all active ebooks from Supabase
   const allEbooks = await getEbooks();
 
-  // Get purchased ebook IDs (check both ebook_id and legacy sanity_ebook_id)
-  const purchasedEbookIds = new Set([
-    ...(purchases?.map(p => p.ebook_id).filter(Boolean) || []),
-    ...(purchases?.map(p => p.sanity_ebook_id).filter(Boolean) || [])
-  ]);
-
-  // Filter ebooks user has access to
-  const accessibleEbooks = subscription
-    ? allEbooks // Subscriber has access to all
-    : allEbooks.filter(ebook => purchasedEbookIds.has(ebook.id));
+  // Filter ebooks user has access to (subscription-only)
+  const accessibleEbooks = subscription ? allEbooks : [];
 
   const hasSubscription = !!subscription;
-  const hasPurchases = purchases && purchases.length > 0;
-  const hasAccess = hasSubscription || hasPurchases;
+  const hasAccess = hasSubscription;
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,7 +90,7 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {/* No Access State */}
+        {/* No Subscription State */}
         {!hasAccess && (
           <div className="text-center py-16">
             <BookOpen className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
@@ -115,14 +99,14 @@ export default async function DashboardPage({
             </h2>
             <p className="text-muted-foreground mb-6">
               {lang === 'pt'
-                ? 'Compre um e-book ou assine para começar a ler.'
-                : 'Purchase an e-book or subscribe to start reading.'}
+                ? 'Assine para ter acesso ilimitado a todos os e-books.'
+                : 'Subscribe to get unlimited access to all e-books.'}
             </p>
             <Link
               href={`/${lang}/ebooks`}
               className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
             >
-              {lang === 'pt' ? 'Ver E-books' : 'Browse E-books'}
+              {lang === 'pt' ? 'Ver Planos' : 'View Plans'}
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>

@@ -42,7 +42,8 @@ describe('Dictionary', () => {
   })
 
   it('should default to English for unknown locale', async () => {
-    const dict = await getDictionary('fr')
+    // Cast to any to test runtime fallback behavior
+    const dict = await getDictionary('fr' as any)
     const enDict = await getDictionary('en')
     expect(dict).toEqual(enDict)
   })

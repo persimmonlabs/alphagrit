@@ -113,21 +113,21 @@ export const defaultLandingContent: LandingPageContent = {
         title: 'The Body',
         description: 'Physical sovereignty through movement, nutrition, and metabolic optimization. Build the machine that carries your mission.',
         link: 'Access Data >>',
-        href: '/en/products',
+        href: '/en/ebooks',
       },
       {
         number: '02',
         title: 'The Mind',
         description: 'Dopamine control, focus architecture, and neural rewiring. Break free from algorithmic addiction and mental weakness.',
         link: 'Access Data >>',
-        href: '/en/products',
+        href: '/en/ebooks',
       },
       {
         number: '03',
         title: 'The Code',
         description: 'Financial independence through skills that scale. Learn to build, deploy, and monetize systems that work while you sleep.',
         link: 'Access Data >>',
-        href: '/en/products',
+        href: '/en/ebooks',
       },
     ],
   },
@@ -145,7 +145,7 @@ export const defaultLandingContent: LandingPageContent = {
     cta: 'Secure Access',
     price: '$97',
     image_placeholder: 'VQ',
-    href: '/en/products',
+    href: '/en/ebooks',
   },
 
   blog: {
@@ -170,91 +170,78 @@ export const defaultLandingContent: LandingPageContent = {
  * @param lang - current language code (for building language-aware routes)
  */
 export function mergeLandingContent(
-  dict: Record<string, any>,
+  dict: Record<string, unknown>,
   lang: string = 'en'
 ): LandingPageContent {
-  // Build language-aware routes
   const buildRoute = (basePath: string) => {
-    if (basePath.startsWith('http')) return basePath; // Don't modify external URLs
+    if (basePath.startsWith('http')) return basePath;
     return `/${lang}${basePath}`;
   };
 
+  const d = dict as Record<string, Record<string, unknown> | undefined>;
+
   return {
     navigation: {
-      logo: dict.navigation?.logo || defaultLandingContent.navigation.logo,
+      logo: (d.navigation?.logo as string) || defaultLandingContent.navigation.logo,
       links: [
-        {
-          label: dict.nav?.blog || '[BLOG]',
-          href: buildRoute('/blog')
-        },
-        {
-          label: dict.nav?.ebooks || '[EBOOKS]',
-          href: buildRoute('/ebooks')
-        },
+        { label: (d.nav?.blog as string) || '[BLOG]', href: buildRoute('/blog') },
+        { label: (d.nav?.ebooks as string) || '[EBOOKS]', href: buildRoute('/ebooks') },
       ],
-      adminLink: {
-        label: dict.nav?.login || '[LOGIN]',
-        href: buildRoute('/auth/login')
-      },
+      adminLink: { label: (d.nav?.login as string) || '[LOGIN]', href: buildRoute('/auth/login') },
       languages: defaultLandingContent.navigation.languages,
     },
-
     hero: {
-      title_line1: dict.hero?.title_line1 || defaultLandingContent.hero.title_line1,
-      title_line2: dict.hero?.title_line2 || defaultLandingContent.hero.title_line2,
-      description: dict.hero?.description || defaultLandingContent.hero.description,
-      cta_primary: dict.hero?.cta_primary || defaultLandingContent.hero.cta_primary,
-      cta_secondary: dict.hero?.cta_secondary || defaultLandingContent.hero.cta_secondary,
+      title_line1: (d.hero?.title_line1 as string) || defaultLandingContent.hero.title_line1,
+      title_line2: (d.hero?.title_line2 as string) || defaultLandingContent.hero.title_line2,
+      description: (d.hero?.description as string) || defaultLandingContent.hero.description,
+      cta_primary: (d.hero?.cta_primary as string) || defaultLandingContent.hero.cta_primary,
+      cta_secondary: (d.hero?.cta_secondary as string) || defaultLandingContent.hero.cta_secondary,
       cta_primary_href: buildRoute('/auth/signup'),
       cta_secondary_href: buildRoute('/ebooks'),
     },
-
     trinity: {
       cards: [
         {
           number: '01',
-          title: dict.cards?.body?.title || defaultLandingContent.trinity.cards[0].title,
-          description: dict.cards?.body?.desc || defaultLandingContent.trinity.cards[0].description,
-          link: dict.cards?.body?.link || defaultLandingContent.trinity.cards[0].link,
-          href: buildRoute('/products'),
+          title: (d.cards?.body as Record<string, string>)?.title || defaultLandingContent.trinity.cards[0].title,
+          description: (d.cards?.body as Record<string, string>)?.desc || defaultLandingContent.trinity.cards[0].description,
+          link: (d.cards?.body as Record<string, string>)?.link || defaultLandingContent.trinity.cards[0].link,
+          href: buildRoute('/ebooks'),
         },
         {
           number: '02',
-          title: dict.cards?.mind?.title || defaultLandingContent.trinity.cards[1].title,
-          description: dict.cards?.mind?.desc || defaultLandingContent.trinity.cards[1].description,
-          link: dict.cards?.mind?.link || defaultLandingContent.trinity.cards[1].link,
-          href: buildRoute('/products'),
+          title: (d.cards?.mind as Record<string, string>)?.title || defaultLandingContent.trinity.cards[1].title,
+          description: (d.cards?.mind as Record<string, string>)?.desc || defaultLandingContent.trinity.cards[1].description,
+          link: (d.cards?.mind as Record<string, string>)?.link || defaultLandingContent.trinity.cards[1].link,
+          href: buildRoute('/ebooks'),
         },
         {
           number: '03',
-          title: dict.cards?.code?.title || defaultLandingContent.trinity.cards[2].title,
-          description: dict.cards?.code?.desc || defaultLandingContent.trinity.cards[2].description,
-          link: dict.cards?.code?.link || defaultLandingContent.trinity.cards[2].link,
-          href: buildRoute('/products'),
+          title: (d.cards?.code as Record<string, string>)?.title || defaultLandingContent.trinity.cards[2].title,
+          description: (d.cards?.code as Record<string, string>)?.desc || defaultLandingContent.trinity.cards[2].description,
+          link: (d.cards?.code as Record<string, string>)?.link || defaultLandingContent.trinity.cards[2].link,
+          href: buildRoute('/ebooks'),
         },
       ],
     },
-
     featured: {
-      label: dict.featured?.label || defaultLandingContent.featured.label,
-      title: dict.featured?.title || defaultLandingContent.featured.title,
-      product_description: dict.featured?.product_desc || defaultLandingContent.featured.product_description,
-      features: dict.featured?.features || defaultLandingContent.featured.features,
-      cta: dict.featured?.cta || defaultLandingContent.featured.cta,
-      price: dict.featured?.price || defaultLandingContent.featured.price,
+      label: (d.featured?.label as string) || defaultLandingContent.featured.label,
+      title: (d.featured?.title as string) || defaultLandingContent.featured.title,
+      product_description: (d.featured?.product_desc as string) || defaultLandingContent.featured.product_description,
+      features: (d.featured?.features as string[]) || defaultLandingContent.featured.features,
+      cta: (d.featured?.cta as string) || defaultLandingContent.featured.cta,
+      price: (d.featured?.price as string) || defaultLandingContent.featured.price,
       image_placeholder: defaultLandingContent.featured.image_placeholder,
-      href: buildRoute('/products'),
+      href: buildRoute('/ebooks'),
     },
-
     blog: {
-      title: dict.blog?.title || defaultLandingContent.blog.title,
-      cta: dict.blog?.cta || defaultLandingContent.blog.cta,
+      title: (d.blog?.title as string) || defaultLandingContent.blog.title,
+      cta: (d.blog?.cta as string) || defaultLandingContent.blog.cta,
       href: buildRoute('/blog'),
     },
-
     footer: {
-      copyright: dict.footer?.rights || defaultLandingContent.footer.copyright,
-      location: dict.footer?.location || defaultLandingContent.footer.location,
+      copyright: (d.footer?.rights as string) || defaultLandingContent.footer.copyright,
+      location: (d.footer?.location as string) || defaultLandingContent.footer.location,
       links: defaultLandingContent.footer.links,
     },
   };

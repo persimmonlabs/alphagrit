@@ -254,60 +254,14 @@ export default function EditEbookPage() {
             </div>
           </div>
 
-          {/* Pricing */}
+          {/* Note: Pricing removed - subscription-only model */}
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
-            <h2 className="text-lg font-semibold mb-4">Pricing</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="price_usd">Price (USD)</Label>
-                <div className="relative mt-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                  <Input
-                    id="price_usd"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.price_usd}
-                    onChange={(e) => setForm(prev => ({ ...prev, price_usd: parseFloat(e.target.value) || 0 }))}
-                    className="pl-7 bg-neutral-800 border-neutral-700"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="price_brl">Price (BRL)</Label>
-                <div className="relative mt-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">R$</span>
-                  <Input
-                    id="price_brl"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.price_brl}
-                    onChange={(e) => setForm(prev => ({ ...prev, price_brl: parseFloat(e.target.value) || 0 }))}
-                    className="pl-10 bg-neutral-800 border-neutral-700"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="stripe_price_id_usd">Stripe Price ID (USD)</Label>
-                <Input
-                  id="stripe_price_id_usd"
-                  value={form.stripe_price_id_usd}
-                  onChange={(e) => setForm(prev => ({ ...prev, stripe_price_id_usd: e.target.value }))}
-                  className="mt-1 bg-neutral-800 border-neutral-700"
-                  placeholder="price_..."
-                />
-              </div>
-              <div>
-                <Label htmlFor="stripe_price_id_brl">Stripe Price ID (BRL)</Label>
-                <Input
-                  id="stripe_price_id_brl"
-                  value={form.stripe_price_id_brl}
-                  onChange={(e) => setForm(prev => ({ ...prev, stripe_price_id_brl: e.target.value }))}
-                  className="mt-1 bg-neutral-800 border-neutral-700"
-                  placeholder="price_..."
-                />
-              </div>
+            <h2 className="text-lg font-semibold mb-4">Access Model</h2>
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+              <p className="text-sm text-blue-400">
+                <strong>Subscription-Only Model:</strong> All ebooks are now accessible through subscription only.
+                Chapter 1 is always free as a preview. No individual ebook pricing needed.
+              </p>
             </div>
           </div>
 

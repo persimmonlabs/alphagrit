@@ -44,8 +44,8 @@ export default async function ContactPage({
                 </h2>
                 <p className="text-muted-foreground mb-4">
                   {isPt
-                    ? 'Para questões técnicas, problemas com compras ou dúvidas gerais.'
-                    : 'For technical issues, purchase problems, or general inquiries.'}
+                    ? 'Para questões técnicas, problemas com assinatura ou dúvidas gerais.'
+                    : 'For technical issues, subscription problems, or general inquiries.'}
                 </p>
                 <a
                   href="mailto:support@alphagrit.com"
@@ -78,8 +78,8 @@ export default async function ContactPage({
                     </h3>
                     <p className="text-muted-foreground">
                       {isPt
-                        ? 'Após a compra, acesse seu dashboard para ler todos os seus e-books.'
-                        : 'After purchase, access your dashboard to read all your e-books.'}
+                        ? 'Após assinar, acesse seu dashboard para ler todos os e-books.'
+                        : 'After subscribing, access your dashboard to read all e-books.'}
                     </p>
                   </div>
                   <div>
@@ -98,8 +98,8 @@ export default async function ContactPage({
                     </h3>
                     <p className="text-muted-foreground">
                       {isPt
-                        ? 'Entre em contato em até 7 dias após a compra para solicitar reembolso.'
-                        : 'Contact us within 7 days of purchase to request a refund.'}
+                        ? 'Entre em contato em até 7 dias após assinar para solicitar reembolso.'
+                        : 'Contact us within 7 days of subscribing to request a refund.'}
                     </p>
                   </div>
                 </div>

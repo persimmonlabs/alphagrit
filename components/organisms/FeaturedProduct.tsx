@@ -59,7 +59,7 @@ export default function FeaturedProduct({ content, products }: FeaturedProductPr
 
   // Determine the product URL based on slug (now links to ebooks)
   const productUrl = `/ebooks/${featuredProduct.slug}`;
-  const price = featuredProduct.price_usd ? `$${featuredProduct.price_usd.toFixed(2)} USD` : '';
+  // Note: Price display removed - subscription-only model
 
 
   return (
@@ -187,7 +187,7 @@ export default function FeaturedProduct({ content, products }: FeaturedProductPr
               ))}
             </ul>
 
-            {/* CTA and Price */}
+            {/* CTA - Price removed (subscription-only model) */}
             <div
               className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mt-8"
               style={{
@@ -212,16 +212,6 @@ export default function FeaturedProduct({ content, products }: FeaturedProductPr
               >
                 {content.cta}
               </Link>
-
-              <div
-                className="font-heading font-black"
-                style={{
-                  fontSize: productDesign.price.fontSize,
-                  color: productDesign.price.color,
-                }}
-              >
-                {price}
-              </div>
             </div>
           </div>
         </div>

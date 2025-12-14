@@ -11,29 +11,50 @@ export async function GET(request: Request) {
     const supabase = createClient()
 
     // Exchange code for session
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error) {
-      // Get user to create profile if needed
-      const { data: { user } } = await supabase.auth.getUser()
+    if (sessionError) {
+      console.error('[Auth Callback] Session exchange failed:', sessionError.message)
+      // Redirect to login with error
+      return NextResponse.redirect(
+        new URL(`/${lang}/auth/login?error=auth_failed`, requestUrl.origin)
+      )
+    }
 
-      if (user) {
-        // Check if profile exists
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', user.id)
-          .single()
+    // Get user to create profile if needed
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-        // Create profile if it doesn't exist
-        if (!profile) {
-          await supabase.from('profiles').insert({
-            id: user.id,
-            full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-            role: 'user',
-            preferred_language: lang,
-            preferred_currency: 'USD',
-          })
+    if (userError) {
+      console.error('[Auth Callback] Failed to get user:', userError.message)
+    }
+
+    if (user) {
+      // Check if profile exists
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('[Auth Callback] Profile check failed:', profileError.message)
+      }
+
+      // Create profile if it doesn't exist
+      if (!profile) {
+        const { error: insertError } = await supabase.from('profiles').insert({
+          id: user.id,
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+          role: 'user',
+          preferred_language: lang,
+          preferred_currency: 'USD',
+        })
+
+        if (insertError) {
+          console.error('[Auth Callback] Profile creation failed:', insertError.message)
+          // Non-fatal: user can still access the app, profile will be created on next action
+        } else {
+          console.info('[Auth Callback] Profile created for user:', user.id)
         }
       }
     }

@@ -164,9 +164,6 @@ export default function EbooksManagePage() {
                           <span className="text-gray-400 text-sm">
                             {ebook.chapters?.length || 0} chapters
                           </span>
-                          <span className="text-gray-400 text-sm">
-                            ${(ebook.price_usd / 100).toFixed(2)} USD
-                          </span>
                         </div>
                       </div>
                     </div>

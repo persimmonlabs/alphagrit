@@ -44,8 +44,8 @@ export default async function TermsPage({
             </h2>
             <p className="text-muted-foreground">
               {isPt
-                ? 'Todos os e-books e conteúdos digitais vendidos nesta plataforma são para uso pessoal e não comercial. Você não pode redistribuir, revender ou compartilhar os materiais adquiridos sem autorização expressa.'
-                : 'All e-books and digital content sold on this platform are for personal, non-commercial use. You may not redistribute, resell, or share purchased materials without express authorization.'}
+                ? 'Todos os e-books e conteúdos digitais disponíveis nesta plataforma são para uso pessoal e não comercial. Você não pode redistribuir, revender ou compartilhar os materiais sem autorização expressa.'
+                : 'All e-books and digital content available on this platform are for personal, non-commercial use. You may not redistribute, resell, or share subscription materials without express authorization.'}
             </p>
           </section>
 
@@ -55,8 +55,8 @@ export default async function TermsPage({
             </h2>
             <p className="text-muted-foreground">
               {isPt
-                ? 'Os pagamentos são processados de forma segura através do Stripe. Devido à natureza digital dos produtos, reembolsos serão analisados caso a caso. Entre em contato conosco em até 7 dias após a compra se tiver algum problema.'
-                : 'Payments are processed securely through Stripe. Due to the digital nature of products, refunds will be evaluated on a case-by-case basis. Contact us within 7 days of purchase if you have any issues.'}
+                ? 'Os pagamentos são processados de forma segura através do Stripe. Devido à natureza digital dos produtos, reembolsos serão analisados caso a caso. Entre em contato conosco em até 7 dias após assinar se tiver algum problema.'
+                : 'Payments are processed securely through Stripe. Due to the digital nature of products, refunds will be evaluated on a case-by-case basis. Contact us within 7 days of subscribing if you have any issues.'}
             </p>
           </section>
 

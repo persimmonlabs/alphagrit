@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import {
   getOrCreateCustomer,
-  createEbookCheckoutSession,
   createSubscriptionCheckoutSession,
 } from '@/lib/stripe'
 
@@ -20,7 +19,7 @@ const ERROR_CODES = {
 const USER_MESSAGES: Record<string, Record<string, string>> = {
   en: {
     STRIPE_NOT_CONFIGURED: 'Payments are not available yet. Please try again later.',
-    UNAUTHORIZED: 'Please log in to continue with your purchase.',
+    UNAUTHORIZED: 'Please log in to continue.',
     INVALID_REQUEST: 'Invalid request. Please refresh and try again.',
     STRIPE_ERROR: 'Payment service error. Please try again.',
     DATABASE_ERROR: 'Unable to process request. Please try again.',
@@ -28,7 +27,7 @@ const USER_MESSAGES: Record<string, Record<string, string>> = {
   },
   pt: {
     STRIPE_NOT_CONFIGURED: 'Pagamentos ainda não estão disponíveis. Tente novamente mais tarde.',
-    UNAUTHORIZED: 'Faça login para continuar com sua compra.',
+    UNAUTHORIZED: 'Faça login para continuar.',
     INVALID_REQUEST: 'Requisição inválida. Atualize a página e tente novamente.',
     STRIPE_ERROR: 'Erro no serviço de pagamento. Tente novamente.',
     DATABASE_ERROR: 'Não foi possível processar a requisição. Tente novamente.',
@@ -97,10 +96,10 @@ export async function POST(request: Request) {
       return createErrorResponse('UNAUTHORIZED', 401, lang)
     }
 
-    // Validate request type
-    if (!type || !['ebook', 'subscription'].includes(type)) {
+    // Validate request type (subscription-only model)
+    if (!type || type !== 'subscription') {
       console.warn(`[${requestId}] Invalid checkout type: ${type}`)
-      return createErrorResponse('INVALID_REQUEST', 400, lang, `Invalid type: ${type}`)
+      return createErrorResponse('INVALID_REQUEST', 400, lang, `Invalid type: ${type}. Only subscriptions are supported.`)
     }
 
     // Validate currency
@@ -149,61 +148,29 @@ export async function POST(request: Request) {
 
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || ''
 
-    if (type === 'subscription') {
-      const { planType } = body
+    // Subscription-only checkout
+    const { planType } = body
 
-      if (!planType || !['monthly', 'yearly'].includes(planType)) {
-        console.warn(`[${requestId}] Invalid plan type: ${planType}`)
-        return createErrorResponse('INVALID_REQUEST', 400, lang, `Invalid planType: ${planType}`)
-      }
+    if (!planType || !['monthly', 'yearly'].includes(planType)) {
+      console.warn(`[${requestId}] Invalid plan type: ${planType}`)
+      return createErrorResponse('INVALID_REQUEST', 400, lang, `Invalid planType: ${planType}`)
+    }
 
-      try {
-        const session = await createSubscriptionCheckoutSession({
-          planType,
-          userId: user.id,
-          customerId,
-          currency: currency as 'USD' | 'BRL',
-          successUrl: `${origin}/${lang}/dashboard?success=subscription`,
-          cancelUrl: `${origin}/${lang}/ebooks?canceled=true`,
-        })
+    try {
+      const session = await createSubscriptionCheckoutSession({
+        planType,
+        userId: user.id,
+        customerId,
+        currency: currency as 'USD' | 'BRL',
+        successUrl: `${origin}/${lang}/dashboard?success=subscription`,
+        cancelUrl: `${origin}/${lang}/ebooks?canceled=true`,
+      })
 
-        console.info(`[${requestId}] Subscription checkout created for user ${user.id}`)
-        return NextResponse.json({ url: session.url })
-      } catch (error: any) {
-        console.error(`[${requestId}] Subscription checkout error:`, error)
-        return createErrorResponse('STRIPE_ERROR', 500, lang, error.message)
-      }
-    } else {
-      // Ebook purchase
-      const { ebookId, priceId } = body
-
-      if (!ebookId) {
-        console.warn(`[${requestId}] Missing ebookId`)
-        return createErrorResponse('INVALID_REQUEST', 400, lang, 'Missing ebookId')
-      }
-
-      if (!priceId) {
-        console.warn(`[${requestId}] Missing priceId for ebook ${ebookId}`)
-        return createErrorResponse('STRIPE_NOT_CONFIGURED', 503, lang, 'Price not configured for this ebook')
-      }
-
-      try {
-        const session = await createEbookCheckoutSession({
-          priceId,
-          userId: user.id,
-          customerId,
-          ebookId,
-          currency: currency as 'USD' | 'BRL',
-          successUrl: `${origin}/${lang}/dashboard?success=purchase`,
-          cancelUrl: `${origin}/${lang}/ebooks?canceled=true`,
-        })
-
-        console.info(`[${requestId}] Ebook checkout created for user ${user.id}, ebook ${ebookId}`)
-        return NextResponse.json({ url: session.url })
-      } catch (error: any) {
-        console.error(`[${requestId}] Ebook checkout error:`, error)
-        return createErrorResponse('STRIPE_ERROR', 500, lang, error.message)
-      }
+      console.info(`[${requestId}] Subscription checkout created for user ${user.id}`)
+      return NextResponse.json({ url: session.url })
+    } catch (error: any) {
+      console.error(`[${requestId}] Subscription checkout error:`, error)
+      return createErrorResponse('STRIPE_ERROR', 500, lang, error.message)
     }
   } catch (error: any) {
     console.error(`[${requestId}] Unhandled checkout error:`, error)

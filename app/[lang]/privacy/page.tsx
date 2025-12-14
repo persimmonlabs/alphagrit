@@ -33,8 +33,8 @@ export default async function PrivacyPage({
             </h2>
             <p className="text-muted-foreground">
               {isPt
-                ? 'Coletamos informações que você nos fornece diretamente, como nome, endereço de email e informações de pagamento quando você cria uma conta ou faz uma compra. Também coletamos informações automaticamente através de cookies e tecnologias semelhantes.'
-                : 'We collect information you provide directly to us, such as name, email address, and payment information when you create an account or make a purchase. We also collect information automatically through cookies and similar technologies.'}
+                ? 'Coletamos informações que você nos fornece diretamente, como nome, endereço de email e informações de pagamento quando você cria uma conta ou assina. Também coletamos informações automaticamente através de cookies e tecnologias semelhantes.'
+                : 'We collect information you provide directly to us, such as name, email address, and payment information when you create an account or subscribe. We also collect information automatically through cookies and similar technologies.'}
             </p>
           </section>
 
@@ -46,7 +46,7 @@ export default async function PrivacyPage({
               {isPt ? 'Usamos as informações coletadas para:' : 'We use the information we collect to:'}
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>{isPt ? 'Processar suas compras e assinaturas' : 'Process your purchases and subscriptions'}</li>
+              <li>{isPt ? 'Processar suas assinaturas' : 'Process your subscriptions'}</li>
               <li>{isPt ? 'Fornecer acesso aos produtos digitais' : 'Provide access to digital products'}</li>
               <li>{isPt ? 'Enviar comunicações sobre sua conta' : 'Send communications about your account'}</li>
               <li>{isPt ? 'Melhorar nossos serviços' : 'Improve our services'}</li>

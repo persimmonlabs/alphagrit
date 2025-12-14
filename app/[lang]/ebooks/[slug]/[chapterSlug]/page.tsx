@@ -33,7 +33,7 @@ export default async function ChapterReaderPage({
   // Check user access via Supabase
   const hasAccess = await hasEbookAccess(ebook.id);
 
-  // If no access and not a free preview chapter, redirect to purchase page
+  // If no access and not a free preview chapter, redirect to subscription page
   if (!hasAccess && !chapter.is_free_preview) {
     redirect(`/${lang}/ebooks/${slug}`);
   }
@@ -169,7 +169,7 @@ export default async function ChapterReaderPage({
                     {lang === 'pt' ? 'Continuar lendo?' : 'Continue reading?'}
                   </p>
                   <p className="font-semibold text-[var(--ebook-primary)]">
-                    {lang === 'pt' ? 'Comprar acesso completo' : 'Buy full access'}
+                    {lang === 'pt' ? 'Assinar para continuar' : 'Subscribe to continue'}
                   </p>
                 </Link>
               ) : (

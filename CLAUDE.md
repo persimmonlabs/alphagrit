@@ -14,16 +14,21 @@ npm test             # Run tests
 
 ## Architecture Overview
 
-Alpha Grit is a **full-stack e-commerce platform** for selling e-books, built entirely with Next.js and deployed on Vercel.
+Alpha Grit is a **subscription-based e-book platform** built with Next.js and deployed on Vercel.
 
 ### Tech Stack
 - **Framework**: Next.js 14 (App Router), TypeScript
 - **Styling**: Tailwind CSS, shadcn/ui
 - **Database**: Supabase (PostgreSQL + Auth + Storage)
-- **CMS**: Sanity (optional, for blog content)
-- **Payments**: Stripe
+- **Payments**: Stripe (subscription-only)
 - **Hosting**: Vercel
 - **Emails**: Resend + React Email
+
+### Business Model
+- **Blog posts**: Free for everyone
+- **E-books**: Subscription-only (Chapter 1 always free preview)
+- **Monthly**: $15/month
+- **Yearly**: $120/year ($10/month)
 
 ---
 
@@ -34,11 +39,11 @@ Alpha Grit is a **full-stack e-commerce platform** for selling e-books, built en
   /[lang]              # Localized public routes (en, pt)
     /ebooks            # E-book catalog and reader
     /blog              # Blog listing and posts
-    /dashboard         # User account, purchases, subscriptions
+    /dashboard         # User account and subscription management
     /auth              # Login, signup, password reset
   /admin               # Admin panel (ebooks, blog management)
   /api                 # API routes
-    /checkout          # Stripe checkout session creation
+    /checkout          # Stripe subscription checkout
     /webhooks/stripe   # Stripe webhook handler
     /subscription      # Subscription portal
 
@@ -54,8 +59,7 @@ Alpha Grit is a **full-stack e-commerce platform** for selling e-books, built en
     /server.ts         # Server client with auth helpers
     /ebooks.ts         # E-book CRUD operations
     /blog.ts           # Blog CRUD operations
-  /sanity              # Sanity CMS client and queries
-  /stripe              # Stripe client and price configs
+  /stripe              # Stripe client and subscription configs
   /ebook               # Access control logic
 
 /database              # SQL schema files for Supabase
@@ -70,11 +74,9 @@ Alpha Grit is a **full-stack e-commerce platform** for selling e-books, built en
 - **Database**: PostgreSQL with Row Level Security (RLS)
 - **Storage**: File uploads (ebook covers, blog images)
 
-Key tables: `profiles`, `ebooks`, `chapters`, `purchases`, `subscriptions`, `blog_posts`
+Key tables: `profiles`, `ebooks`, `chapters`, `subscriptions`, `blog_posts`
 
-### Sanity CMS (Optional)
-- Used for some blog content
-- Queries in `/lib/sanity/queries.ts`
+Note: `purchases` table exists for legacy compatibility but is no longer used for access control.
 
 ---
 
@@ -82,8 +84,8 @@ Key tables: `profiles`, `ebooks`, `chapters`, `purchases`, `subscriptions`, `blo
 
 | Route | Purpose |
 |-------|---------|
-| `/api/checkout` | Creates Stripe checkout sessions for ebooks/subscriptions |
-| `/api/webhooks/stripe` | Handles Stripe events (payment success, subscription updates) |
+| `/api/checkout` | Creates Stripe subscription checkout sessions |
+| `/api/webhooks/stripe` | Handles Stripe subscription events |
 | `/api/subscription/portal` | Creates Stripe customer portal sessions |
 
 ---
@@ -93,16 +95,16 @@ Key tables: `profiles`, `ebooks`, `chapters`, `purchases`, `subscriptions`, `blo
 - **User Auth**: Supabase Auth (email/password)
 - **Admin Auth**: Role-based via `profiles.role = 'admin'`
 - **Middleware**: `/lib/supabase/middleware.ts` protects admin routes
-- **E-book Access**: Checked via purchases table or active subscription
+- **E-book Access**: Checked via active subscription only
 
 ---
 
 ## Payments (Stripe)
 
-- Checkout sessions created in `/api/checkout`
-- Webhooks handle `checkout.session.completed`, `customer.subscription.*`
-- Purchases recorded in `purchases` table
+- Subscription checkout sessions created in `/api/checkout`
+- Webhooks handle `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
 - Subscriptions tracked in `subscriptions` table
+- No individual e-book purchases - subscription-only access
 
 ---
 

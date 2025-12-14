@@ -1,6 +1,13 @@
-# Alpha Grit - E-commerce Platform for Digital Products
+# Alpha Grit - Subscription-Based E-book Platform
 
-A production-ready Next.js 14 e-commerce platform for selling e-books, built with modern web technologies.
+A production-ready Next.js 14 subscription platform for e-books, built with modern web technologies.
+
+## Business Model
+
+- **Blog posts**: Free for everyone
+- **E-books**: Subscription-only (Chapter 1 always free preview)
+- **Monthly**: $15/month
+- **Yearly**: $120/year ($10/month)
 
 ## Tech Stack
 
@@ -28,16 +35,11 @@ A production-ready Next.js 14 e-commerce platform for selling e-books, built wit
 ### Database Schema (Complete)
 All tables created with proper indexes and relationships:
 - `profiles` - User profiles
-- `products` - Unified product catalog (e-books, physical, subscriptions)
-- `orders` - Customer orders with payment tracking
-- `order_items` - Line items for each order
-- `download_links` - Secure, expiring download links (7 days, 5 downloads max)
-- `reviews` - Product reviews (admin-managed)
+- `ebooks` - E-book catalog
+- `chapters` - E-book chapters with content
+- `subscriptions` - User subscriptions (active/cancelled/expired)
 - `blog_posts` - Blog content management
-- `faqs` - Frequently asked questions
-- `site_config` - Dynamic site configuration (key-value store)
-- `feature_flags` - Feature toggles
-- `cart_items` - Shopping cart for logged-in users
+- `purchases` - Legacy table (deprecated - kept for backwards compatibility)
 
 ### Security Features
 - Row Level Security (RLS) policies on all tables

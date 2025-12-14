@@ -22,13 +22,14 @@ export const stripe = {
 }
 
 // Price IDs for subscriptions (you'll set these in Stripe Dashboard)
+// Monthly: $15/month, Yearly: $120/year ($10/month)
 export const SUBSCRIPTION_PRICES = {
   monthly: {
-    USD: process.env.STRIPE_MONTHLY_PRICE_USD,
+    USD: process.env.STRIPE_MONTHLY_PRICE_USD, // $15/month
     BRL: process.env.STRIPE_MONTHLY_PRICE_BRL,
   },
   yearly: {
-    USD: process.env.STRIPE_YEARLY_PRICE_USD,
+    USD: process.env.STRIPE_YEARLY_PRICE_USD, // $120/year
     BRL: process.env.STRIPE_YEARLY_PRICE_BRL,
   },
 }
@@ -51,47 +52,6 @@ export async function getOrCreateCustomer(
   })
 
   return customer.id
-}
-
-// Create checkout session for individual ebook purchase
-export async function createEbookCheckoutSession({
-  priceId,
-  userId,
-  customerId,
-  ebookId,
-  currency,
-  successUrl,
-  cancelUrl,
-}: {
-  priceId: string
-  userId: string
-  customerId: string
-  ebookId: string
-  currency: 'USD' | 'BRL'
-  successUrl: string
-  cancelUrl: string
-}) {
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
-    mode: 'payment',
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    metadata: {
-      user_id: userId,
-      ebook_id: ebookId,
-      type: 'ebook_purchase',
-      currency,
-    },
-  })
-
-  return session
 }
 
 // Create checkout session for subscription

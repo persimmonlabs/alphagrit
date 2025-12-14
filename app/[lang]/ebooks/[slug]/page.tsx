@@ -35,13 +35,6 @@ export default async function EbookOverviewPage({
     '--ebook-accent': '#ef4444',
   } as React.CSSProperties;
 
-  const currency = lang === 'pt' ? 'BRL' : 'USD';
-  const price = lang === 'pt' ? ebook.price_brl : ebook.price_usd;
-  const priceFormatted = new Intl.NumberFormat(lang === 'pt' ? 'pt-BR' : 'en-US', {
-    style: 'currency',
-    currency,
-  }).format(price / 100);
-
   // Get localized content
   const title = lang === 'pt' && ebook.title_pt ? ebook.title_pt : ebook.title_en;
   const description = lang === 'pt' && ebook.description_pt ? ebook.description_pt : ebook.description_en;
@@ -118,11 +111,8 @@ export default async function EbookOverviewPage({
                 ) : (
                   <div className="flex flex-wrap items-center gap-4">
                     <BuyButton
-                      ebookId={ebook.id}
-                      priceId={(lang === 'pt' ? ebook.stripe_price_id_brl : ebook.stripe_price_id_usd) || undefined}
-                      currency={currency}
                       lang={lang}
-                      priceFormatted={priceFormatted}
+                      hasSubscription={hasAccess}
                     />
                     {chapters.some(ch => ch.is_free_preview) && (
                       <Link
