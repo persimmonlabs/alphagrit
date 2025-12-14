@@ -61,6 +61,9 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <Link href={`/${lang}`} className="inline-block mb-6 font-heading font-bold text-xl tracking-tighter hover:opacity-70 transition-opacity">
+            ALPHAGRIT
+          </Link>
           <h1 className="text-3xl font-bold">{isPt ? 'Redefinir senha' : 'Reset password'}</h1>
           <p className="text-muted-foreground mt-2">
             {isPt

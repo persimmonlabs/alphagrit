@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
 import { Check, X } from 'lucide-react'
 
 export default function UpdatePasswordPage() {
@@ -88,6 +89,9 @@ export default function UpdatePasswordPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <Link href={`/${lang}`} className="inline-block mb-6 font-heading font-bold text-xl tracking-tighter hover:opacity-70 transition-opacity">
+            ALPHAGRIT
+          </Link>
           <h1 className="text-3xl font-bold">{isPt ? 'Nova senha' : 'New password'}</h1>
           <p className="text-muted-foreground mt-2">
             {isPt ? 'Digite sua nova senha.' : 'Enter your new password.'}

@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { NavigationContent } from '@/config/landing-content';
 import alphaGritDesign from '@/config/design-config';
+import { createClient } from '@/lib/supabase/client';
 
 interface AlphaGritNavigationProps {
   content: NavigationContent;
@@ -16,14 +17,40 @@ interface AlphaGritNavigationProps {
  * AlphaGrit Navigation Component
  *
  * Distinctive mix-blend-difference header with language switcher.
- * Preserves the unique AlphaGrit aesthetic.
+ * Auth-aware: shows DASHBOARD when logged in, LOGIN when not.
  */
 export default function AlphaGritNavigation({
   content,
   currentLang,
 }: AlphaGritNavigationProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const design = alphaGritDesign.components.navigation;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+      setIsLoading(false);
+    };
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: { user?: unknown } | null) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push(`/${currentLang}`);
+    router.refresh();
+  };
 
   return (
     <header
@@ -67,17 +94,31 @@ export default function AlphaGritNavigation({
               {link.label}
             </Link>
           ))}
-          {content.adminLink && (
-            <Link
-              href={content.adminLink.href}
-              className={cn(
-                'font-mono text-xs tracking-widest uppercase',
-                'hover:opacity-50 transition-opacity duration-300',
-                'opacity-50'
-              )}
-            >
-              {content.adminLink.label}
-            </Link>
+          {/* Auth-aware link: DASHBOARD when logged in, LOGIN when not */}
+          {!isLoading && (
+            isLoggedIn ? (
+              <Link
+                href={`/${currentLang}/dashboard`}
+                className={cn(
+                  'font-mono text-xs tracking-widest uppercase',
+                  'hover:opacity-50 transition-opacity duration-300',
+                  'opacity-50'
+                )}
+              >
+                {currentLang === 'pt' ? '[PAINEL]' : '[DASHBOARD]'}
+              </Link>
+            ) : (
+              <Link
+                href={`/${currentLang}/auth/login`}
+                className={cn(
+                  'font-mono text-xs tracking-widest uppercase',
+                  'hover:opacity-50 transition-opacity duration-300',
+                  'opacity-50'
+                )}
+              >
+                {currentLang === 'pt' ? '[ENTRAR]' : '[LOGIN]'}
+              </Link>
+            )
           )}
         </nav>
 

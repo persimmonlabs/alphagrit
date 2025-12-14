@@ -3,12 +3,13 @@ import type { Locale } from '@/i18n-config';
 import { getEbookBySlug } from '@/lib/supabase/ebooks';
 import { hasEbookAccess } from '@/lib/supabase/server';
 import { BuyButton } from '@/components/ebook/BuyButton';
+import SiteHeader from '@/components/organisms/SiteHeader';
 
 export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, Clock, Lock, ChevronRight, ArrowLeft } from 'lucide-react';
+import { BookOpen, Clock, Lock, ChevronRight } from 'lucide-react';
 
 export default async function EbookOverviewPage({
   params: { lang, slug },
@@ -41,17 +42,11 @@ export default async function EbookOverviewPage({
 
   return (
     <div className="min-h-screen bg-background" style={themeStyles}>
+      <SiteHeader lang={lang} />
+
       {/* Hero Section */}
       <section className="border-b border-border bg-gradient-to-b from-neutral-900 to-background">
         <div className="container mx-auto px-4 py-8 md:py-12">
-          {/* Back Link */}
-          <Link
-            href={`/${lang}/ebooks`}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {lang === 'pt' ? 'E-Books' : 'E-Books'}
-          </Link>
           <div className="grid gap-6 md:gap-8 lg:grid-cols-3">
             {/* Cover Image */}
             <div className="lg:col-span-1">

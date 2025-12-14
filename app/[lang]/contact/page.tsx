@@ -1,7 +1,8 @@
 import { getDictionary } from '@/lib/dictionary'
 import type { Locale } from '@/i18n-config'
 import Link from 'next/link'
-import { Mail, MessageSquare, ArrowLeft } from 'lucide-react'
+import { Mail, MessageSquare } from 'lucide-react'
+import SiteHeader from '@/components/organisms/SiteHeader'
 
 export default async function ContactPage({
   params: { lang },
@@ -13,14 +14,7 @@ export default async function ContactPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            {isPt ? 'Início' : 'Home'}
-          </Link>
-        </div>
-      </header>
+      <SiteHeader lang={lang} />
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">

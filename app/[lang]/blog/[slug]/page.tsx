@@ -1,9 +1,10 @@
 import type { Locale } from '@/i18n-config';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Clock, ArrowLeft, User } from 'lucide-react';
+import { Clock, User } from 'lucide-react';
 import { getBlogPostBySlug, type BlogPost } from '@/lib/supabase/blog';
 import { RichContentRenderer } from '@/components/ebook';
+import SiteHeader from '@/components/organisms/SiteHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,8 @@ export default async function BlogPostPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <SiteHeader lang={lang} />
+
       {/* Hero Section */}
       <div className="relative">
         {/* Cover Image */}
@@ -60,15 +63,6 @@ export default async function BlogPostPage({
         <div className={`${post.cover_image_url ? 'absolute bottom-0 left-0 right-0' : ''}`}>
           <div className="container mx-auto px-4 pb-8">
             <div className="max-w-3xl mx-auto">
-              {/* Back Link */}
-              <Link
-                href={`/${lang}/blog`}
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                {lang === 'pt' ? 'Blog' : 'Blog'}
-              </Link>
-
               {/* Category */}
               <div className="mb-4">
                 <span className="text-xs font-semibold uppercase tracking-wider text-orange-500">

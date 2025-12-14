@@ -1,6 +1,7 @@
 import { getDictionary } from '@/lib/dictionary'
 import type { Locale } from '@/i18n-config'
 import Link from 'next/link'
+import SiteHeader from '@/components/organisms/SiteHeader'
 
 export default async function TermsPage({
   params: { lang },
@@ -12,13 +13,7 @@ export default async function TermsPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <Link href={`/${lang}`} className="text-primary hover:opacity-80">
-            ← {isPt ? 'Voltar' : 'Back'}
-          </Link>
-        </div>
-      </header>
+      <SiteHeader lang={lang} />
 
       <main className="container mx-auto px-4 py-12 max-w-3xl">
         <h1 className="text-4xl font-bold mb-2">{dict.legal.termsTitle}</h1>

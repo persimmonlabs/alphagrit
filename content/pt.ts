@@ -25,7 +25,7 @@ export const pt: typeof en = {
     title_line2: "O Código Fonte",
     description: "O mundo moderno foi projetado para mantê-lo fraco, distraído e dependente. Fornecemos o armamento digital para se desconectar do ruído e reconstruir sua biologia e psicologia.",
     cta_primary: "Inicializar Protocolo",
-    cta_secondary: "Ver Catálogo",
+    cta_secondary: "Ler o Blog",
   },
 
   // Seção de cards

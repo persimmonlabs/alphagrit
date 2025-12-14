@@ -85,6 +85,9 @@ export default function SignupPage({
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
+          <Link href={`/${lang}`} className="inline-block mb-6 font-heading font-bold text-xl tracking-tighter text-white hover:opacity-70 transition-opacity">
+            ALPHAGRIT
+          </Link>
           <h1 className="text-3xl font-bold text-white">
             {isPt ? 'Criar Conta' : 'Create Account'}
           </h1>

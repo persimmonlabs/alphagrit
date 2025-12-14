@@ -6,8 +6,9 @@ import { getEbooks } from '@/lib/supabase/ebooks';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, Crown, Clock, ChevronRight, ArrowLeft, Settings, CheckCircle, PartyPopper } from 'lucide-react';
+import { BookOpen, Crown, Clock, ChevronRight, Settings, PartyPopper } from 'lucide-react';
 import { ManageSubscriptionButton } from '@/components/ebook/ManageSubscriptionButton';
+import SiteHeader from '@/components/organisms/SiteHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,16 +50,9 @@ export default async function DashboardPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Back Link */}
-        <Link
-          href={`/${lang}`}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {lang === 'pt' ? 'Início' : 'Home'}
-        </Link>
+      <SiteHeader lang={lang} />
 
+      <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Success Message */}
         {showSuccessMessage && (
           <div className="mb-6 p-4 md:p-6 bg-green-500/10 border border-green-500/30 rounded-xl">

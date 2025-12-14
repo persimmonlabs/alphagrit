@@ -1,8 +1,9 @@
 import { getDictionary } from '@/lib/dictionary';
 import type { Locale } from '@/i18n-config';
 import Link from 'next/link';
-import { FileText, Clock, ArrowRight, Star, ArrowLeft } from 'lucide-react';
+import { FileText, Clock, ArrowRight, Star } from 'lucide-react';
 import { getBlogPosts, getFeaturedBlogPosts, type BlogPost } from '@/lib/supabase/blog';
+import SiteHeader from '@/components/organisms/SiteHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,17 +61,11 @@ export default async function BlogIndexPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <SiteHeader lang={lang} />
+
       {/* Header */}
       <div className="bg-gradient-to-b from-neutral-900 to-background border-b border-neutral-800">
         <div className="container mx-auto px-4 py-12 md:py-16">
-          {/* Back Link */}
-          <Link
-            href={`/${lang}`}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {lang === 'pt' ? 'Início' : 'Home'}
-          </Link>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-foreground text-center mb-4">
             {lang === 'pt' ? 'Blog' : 'Blog'}
           </h1>

@@ -4,7 +4,8 @@ import { getUser, getProfile } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Globe, DollarSign, Crown, Settings, ArrowLeft } from 'lucide-react';
+import { User, Mail, Globe, DollarSign, Crown, Settings } from 'lucide-react';
+import SiteHeader from '@/components/organisms/SiteHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,16 +37,9 @@ export default async function ProfilePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
-        {/* Back Link */}
-        <Link
-          href={`/${lang}/dashboard`}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {lang === 'pt' ? 'Biblioteca' : 'Library'}
-        </Link>
+      <SiteHeader lang={lang} />
 
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-foreground mb-2">

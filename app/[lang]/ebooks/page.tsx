@@ -3,11 +3,12 @@ import type { Locale } from '@/i18n-config';
 import { getEbooks } from '@/lib/supabase/ebooks';
 import { hasActiveSubscription, getUser } from '@/lib/supabase/server';
 import { BuyButton } from '@/components/ebook/BuyButton';
+import SiteHeader from '@/components/organisms/SiteHeader';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, Clock, ChevronRight, ArrowLeft, Crown, Sparkles } from 'lucide-react';
+import { BookOpen, Clock, ChevronRight, Crown, Sparkles } from 'lucide-react';
 
 export default async function EbooksCatalogPage({
   params: { lang },
@@ -30,17 +31,11 @@ export default async function EbooksCatalogPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <SiteHeader lang={lang} />
+
       {/* Hero Section */}
       <section className="border-b border-border bg-gradient-to-b from-neutral-900 to-background">
         <div className="container mx-auto px-4 py-12 md:py-16">
-          {/* Back Link */}
-          <Link
-            href={`/${lang}`}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {lang === 'pt' ? 'Início' : 'Home'}
-          </Link>
           <div className="max-w-3xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
               {title}
