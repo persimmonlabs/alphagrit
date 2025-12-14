@@ -157,59 +157,70 @@ export default async function EbookOverviewPage({
             const chapterTitle = lang === 'pt' && chapter.title_pt ? chapter.title_pt : chapter.title_en;
             const chapterSummary = lang === 'pt' && chapter.summary_pt ? chapter.summary_pt : chapter.summary_en;
 
-            return (
-              <Link
-                key={chapter.id}
-                href={canAccess ? `/${lang}/ebooks/${slug}/${chapter.slug}` : '#'}
-                className={`group block p-4 md:p-5 rounded-xl border transition-all ${
-                  canAccess
-                    ? 'border-border hover:border-[var(--ebook-primary)] hover:bg-muted/50'
-                    : 'border-border/50 opacity-70 cursor-not-allowed'
-                }`}
-                onClick={!canAccess ? (e) => e.preventDefault() : undefined}
-              >
-                <div className="flex items-start gap-3 md:gap-4">
-                  <div
-                    className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold ${
-                      canAccess
-                        ? 'bg-[var(--ebook-primary)]/10 text-[var(--ebook-primary)]'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {canAccess ? chapter.chapter_number : <Lock className="w-3 h-3 md:w-4 md:h-4" />}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-1">
-                      <h3 className={`text-sm md:text-base font-semibold ${canAccess ? 'group-hover:text-[var(--ebook-primary)]' : ''} transition-colors`}>
-                        {chapterTitle}
-                      </h3>
-                      {chapter.is_free_preview && !hasAccess && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
-                          {lang === 'pt' ? 'Grátis' : 'Free'}
-                        </span>
-                      )}
-                    </div>
-                    {chapterSummary && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {chapterSummary}
-                      </p>
-                    )}
-                    {chapter.estimated_read_time_minutes > 0 && (
-                      <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {chapter.estimated_read_time_minutes} min
-                      </p>
-                    )}
-                  </div>
-
-                  <ChevronRight className={`w-5 h-5 flex-shrink-0 ${
+            const chapterContent = (
+              <div className="flex items-start gap-3 md:gap-4">
+                <div
+                  className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold ${
                     canAccess
-                      ? 'text-muted-foreground group-hover:text-[var(--ebook-primary)] group-hover:translate-x-1'
-                      : 'text-muted-foreground/50'
-                  } transition-all`} />
+                      ? 'bg-[var(--ebook-primary)]/10 text-[var(--ebook-primary)]'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {canAccess ? chapter.chapter_number : <Lock className="w-3 h-3 md:w-4 md:h-4" />}
                 </div>
-              </Link>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-1">
+                    <h3 className={`text-sm md:text-base font-semibold ${canAccess ? 'group-hover:text-[var(--ebook-primary)]' : ''} transition-colors`}>
+                      {chapterTitle}
+                    </h3>
+                    {chapter.is_free_preview && !hasAccess && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
+                        {lang === 'pt' ? 'Grátis' : 'Free'}
+                      </span>
+                    )}
+                  </div>
+                  {chapterSummary && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {chapterSummary}
+                    </p>
+                  )}
+                  {chapter.estimated_read_time_minutes > 0 && (
+                    <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {chapter.estimated_read_time_minutes} min
+                    </p>
+                  )}
+                </div>
+
+                <ChevronRight className={`w-5 h-5 flex-shrink-0 ${
+                  canAccess
+                    ? 'text-muted-foreground group-hover:text-[var(--ebook-primary)] group-hover:translate-x-1'
+                    : 'text-muted-foreground/50'
+                } transition-all`} />
+              </div>
+            );
+
+            // Render as Link only if user can access, otherwise render as div
+            if (canAccess) {
+              return (
+                <Link
+                  key={chapter.id}
+                  href={`/${lang}/ebooks/${slug}/${chapter.slug}`}
+                  className="group block p-4 md:p-5 rounded-xl border border-border hover:border-[var(--ebook-primary)] hover:bg-muted/50 transition-all"
+                >
+                  {chapterContent}
+                </Link>
+              );
+            }
+
+            return (
+              <div
+                key={chapter.id}
+                className="block p-4 md:p-5 rounded-xl border border-border/50 opacity-70 cursor-not-allowed"
+              >
+                {chapterContent}
+              </div>
             );
           })}
         </div>
