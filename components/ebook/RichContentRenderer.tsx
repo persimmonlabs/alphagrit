@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { Copy, Check, ChevronDown } from 'lucide-react'
 
 interface RichContentRendererProps {
@@ -25,6 +25,45 @@ export function RichContentRenderer({ content, className }: RichContentRendererP
   const containerRef = useRef<HTMLDivElement>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
+  // Process content: if it's plain text, convert to HTML paragraphs
+  const processedContent = useMemo(() => {
+    if (!content) return ''
+
+    // Check if content already has HTML tags
+    const hasHtmlTags = /<[a-z][\s\S]*>/i.test(content)
+
+    if (hasHtmlTags) {
+      return content
+    }
+
+    // Convert plain text to HTML paragraphs
+    // Split by double newlines for paragraphs, preserve single newlines as <br>
+    const paragraphs = content
+      .split(/\n\n+/)
+      .filter(p => p.trim())
+      .map(paragraph => {
+        // Check if this looks like a heading (all caps or ends with colon at start)
+        const trimmed = paragraph.trim()
+
+        // Detect headings: lines that are short, all caps, or end with specific patterns
+        if (trimmed.length < 100 && /^[A-Z][A-Z\s\d]+$/.test(trimmed)) {
+          return `<h2 class="text-xl md:text-2xl font-bold text-foreground mt-8 mb-4">${trimmed}</h2>`
+        }
+
+        // Check for section headings (Title Case followed by content)
+        if (trimmed.length < 80 && /^[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s*$/.test(trimmed)) {
+          return `<h3 class="text-lg md:text-xl font-semibold text-foreground mt-6 mb-3">${trimmed}</h3>`
+        }
+
+        // Regular paragraph - convert single newlines to <br>
+        const htmlParagraph = paragraph.replace(/\n/g, '<br />')
+        return `<p>${htmlParagraph}</p>`
+      })
+      .join('\n')
+
+    return paragraphs
+  }, [content])
+
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -37,27 +76,28 @@ export function RichContentRenderer({ content, className }: RichContentRendererP
     // Initialize code blocks
     initCodeBlocks(containerRef.current, setCopiedCode)
 
-  }, [content])
+  }, [processedContent])
 
   return (
     <div
       ref={containerRef}
-      className={`rich-content prose prose-neutral dark:prose-invert max-w-none
-        prose-headings:font-heading prose-headings:font-bold
-        prose-h1:text-3xl prose-h1:mt-8 prose-h1:mb-4
-        prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-        prose-p:text-muted-foreground prose-p:leading-relaxed
+      className={`rich-content prose prose-base md:prose-lg dark:prose-invert max-w-none
+        prose-headings:font-heading prose-headings:font-bold prose-headings:text-foreground
+        prose-h1:text-2xl prose-h1:md:text-3xl prose-h1:mt-8 prose-h1:mb-4
+        prose-h2:text-xl prose-h2:md:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:text-orange-500
+        prose-h3:text-lg prose-h3:md:text-xl prose-h3:mt-6 prose-h3:mb-3
+        prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-4 prose-p:text-base prose-p:md:text-lg
         prose-a:text-orange-500 prose-a:no-underline hover:prose-a:underline
-        prose-strong:text-foreground
-        prose-ul:text-muted-foreground prose-ol:text-muted-foreground
-        prose-li:marker:text-orange-500
-        prose-blockquote:border-l-orange-500 prose-blockquote:text-muted-foreground
+        prose-strong:text-white prose-strong:font-semibold
+        prose-ul:text-gray-300 prose-ol:text-gray-300 prose-ul:my-4 prose-ol:my-4
+        prose-li:marker:text-orange-500 prose-li:mb-2
+        prose-blockquote:border-l-orange-500 prose-blockquote:text-gray-400 prose-blockquote:italic prose-blockquote:pl-4 prose-blockquote:my-6
         prose-code:text-orange-400 prose-code:bg-neutral-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
-        prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800
-        prose-img:rounded-xl
+        prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800 prose-pre:rounded-lg prose-pre:my-6
+        prose-img:rounded-xl prose-img:my-6
+        [&>p]:first-of-type:text-lg [&>p]:first-of-type:md:text-xl [&>p]:first-of-type:text-gray-200
         ${className || ''}`}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: processedContent }}
     />
   )
 }
