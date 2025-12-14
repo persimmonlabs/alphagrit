@@ -43,9 +43,9 @@ export const pt: typeof en = {
     badge: "NOVIDADE",
     product_title: "O Projeto",
     product_desc: "O manual completo para se desconectar da matrix. Inclui protocolos de nutrição, modelos mentais e estratégias financeiras.",
-    features: ["200+ Páginas de Táticas", "Áudio Complementar", "Atualizações Vitalícias"],
-    cta: "Garantir Acesso",
-    price: "R$497",
+    features: ["Acesso Completo com Assinatura", "Conteúdo Novo Mensalmente", "Leia em Qualquer Dispositivo", "Cancele Quando Quiser"],
+    cta: "Começar a Ler",
+    price: "",
   },
 
   // Blog
@@ -149,7 +149,7 @@ export const pt: typeof en = {
   footer: {
     rights: "© 2025 TODOS OS DIREITOS RESERVADOS.",
     location: "[CONEXÃO SEGURA]",
-    price: "R$497",
+    price: "",
     terms: "Termos de Serviço",
     privacy: "Política de Privacidade",
     contact: "Contato",

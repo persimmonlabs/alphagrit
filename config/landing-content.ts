@@ -101,9 +101,9 @@ export const defaultLandingContent: LandingPageContent = {
     title_line2: 'The Source Code',
     description: 'The modern world is designed to keep you weak. Overworked. Underpaid. Addicted. Broke. Exhausted. Disconnected from your body, trapped by dopamine loops, and enslaved by a system that profits from your mediocrity.',
     cta_primary: 'Initialize Protocol',
-    cta_secondary: 'View Catalog',
-    cta_primary_href: '/en/auth/signup',
-    cta_secondary_href: '/en/ebooks',
+    cta_secondary: 'Read The Blog',
+    cta_primary_href: '/en/ebooks',
+    cta_secondary_href: '/en/blog',
   },
 
   trinity: {
@@ -133,17 +133,17 @@ export const defaultLandingContent: LandingPageContent = {
   },
 
   featured: {
-    label: '[LATEST_DROP]',
+    label: '[FEATURED_EBOOK]',
     title: 'Unconnected Society',
     product_description: 'The complete manual for disconnecting from digital slavery and reconnecting with reality. 200+ pages of tactical protocols for men ready to reclaim their time, attention, and autonomy.',
     features: [
-      '200+ Pages of Tactics',
-      'Audio Companion',
-      'Lifetime Updates',
-      'Community Access',
+      'Full Access with Subscription',
+      'New Content Monthly',
+      'Read on Any Device',
+      'Cancel Anytime',
     ],
-    cta: 'Secure Access',
-    price: '$97',
+    cta: 'Start Reading',
+    price: '',
     image_placeholder: 'VQ',
     href: '/en/ebooks',
   },
@@ -196,8 +196,8 @@ export function mergeLandingContent(
       description: (d.hero?.description as string) || defaultLandingContent.hero.description,
       cta_primary: (d.hero?.cta_primary as string) || defaultLandingContent.hero.cta_primary,
       cta_secondary: (d.hero?.cta_secondary as string) || defaultLandingContent.hero.cta_secondary,
-      cta_primary_href: buildRoute('/auth/signup'),
-      cta_secondary_href: buildRoute('/ebooks'),
+      cta_primary_href: buildRoute('/ebooks'),
+      cta_secondary_href: buildRoute('/blog'),
     },
     trinity: {
       cards: [

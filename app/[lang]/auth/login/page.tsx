@@ -132,7 +132,7 @@ export default function LoginPage({
         <p className="text-center text-gray-400">
           {lang === 'pt' ? 'Não tem uma conta?' : "Don't have an account?"}{' '}
           <Link
-            href={`/${lang}/auth/signup`}
+            href={`/${lang}/auth/signup${searchParams.redirect ? `?redirect=${encodeURIComponent(searchParams.redirect)}` : ''}`}
             className="text-orange-500 hover:text-orange-400"
           >
             {lang === 'pt' ? 'Criar conta' : 'Sign Up'}

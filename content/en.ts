@@ -41,9 +41,9 @@ export const en = {
     badge: "NEW ARRIVAL",
     product_title: "The Blueprint",
     product_desc: "The complete manual for disconnecting from the matrix. Includes nutrition protocols, mental models, and financial strategies.",
-    features: ["200+ Pages of Tactics", "Audio Companion", "Lifetime Updates"],
-    cta: "Secure Access",
-    price: "$97",
+    features: ["Full Access with Subscription", "New Content Monthly", "Read on Any Device", "Cancel Anytime"],
+    cta: "Start Reading",
+    price: "",
   },
 
   // Blog
@@ -147,7 +147,7 @@ export const en = {
   footer: {
     rights: "© 2025 ALL RIGHTS RESERVED.",
     location: "[SECURE CONNECTION]",
-    price: "$97",
+    price: "",
     terms: "Terms of Service",
     privacy: "Privacy Policy",
     contact: "Contact",

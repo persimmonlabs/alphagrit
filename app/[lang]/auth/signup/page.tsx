@@ -13,8 +13,10 @@ import { Check, X } from 'lucide-react'
 
 export default function SignupPage({
   params: { lang },
+  searchParams,
 }: {
   params: { lang: string }
+  searchParams: { redirect?: string }
 }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -66,7 +68,8 @@ export default function SignupPage({
 
     // Auto sign-in after signup (no email confirmation required)
     if (data.user) {
-      router.push(`/${lang}/dashboard`)
+      const redirectTo = searchParams.redirect || `/${lang}/dashboard`
+      router.push(redirectTo)
       router.refresh()
     }
   }
@@ -183,7 +186,7 @@ export default function SignupPage({
         <p className="text-center text-gray-400">
           {isPt ? 'Já tem uma conta?' : 'Already have an account?'}{' '}
           <Link
-            href={`/${lang}/auth/login`}
+            href={`/${lang}/auth/login${searchParams.redirect ? `?redirect=${encodeURIComponent(searchParams.redirect)}` : ''}`}
             className="text-orange-500 hover:text-orange-400"
           >
             {isPt ? 'Entrar' : 'Sign In'}

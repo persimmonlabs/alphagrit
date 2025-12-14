@@ -6,15 +6,19 @@ import { getEbooks } from '@/lib/supabase/ebooks';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, Crown, Clock, ChevronRight, ArrowLeft } from 'lucide-react';
+import { BookOpen, Crown, Clock, ChevronRight, ArrowLeft, Settings, CheckCircle, PartyPopper } from 'lucide-react';
+import { ManageSubscriptionButton } from '@/components/ebook/ManageSubscriptionButton';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage({
   params: { lang },
+  searchParams,
 }: {
   params: { lang: Locale };
+  searchParams: { success?: string };
 }) {
+  const showSuccessMessage = searchParams.success === 'subscription';
   const dict = await getDictionary(lang);
   const user = await getUser();
 
@@ -55,6 +59,25 @@ export default async function DashboardPage({
           {lang === 'pt' ? 'Início' : 'Home'}
         </Link>
 
+        {/* Success Message */}
+        {showSuccessMessage && (
+          <div className="mb-6 p-4 md:p-6 bg-green-500/10 border border-green-500/30 rounded-xl">
+            <div className="flex items-start gap-3">
+              <PartyPopper className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <h2 className="text-lg font-bold text-green-400 mb-1">
+                  {lang === 'pt' ? 'Assinatura Ativada!' : 'Subscription Activated!'}
+                </h2>
+                <p className="text-sm text-green-300/80">
+                  {lang === 'pt'
+                    ? 'Parabéns! Você agora tem acesso ilimitado a todos os e-books. Comece a ler agora mesmo!'
+                    : 'Congratulations! You now have unlimited access to all ebooks. Start reading now!'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8 md:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">
@@ -70,23 +93,28 @@ export default async function DashboardPage({
         {/* Subscription Status */}
         {hasSubscription && (
           <div className="mb-6 md:mb-8 p-4 md:p-6 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl">
-            <div className="flex items-center gap-2 md:gap-3 mb-2">
-              <Crown className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
-              <h2 className="text-lg md:text-xl font-bold text-foreground">
-                {lang === 'pt' ? 'Assinante Premium' : 'Premium Subscriber'}
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 md:gap-3 mb-2">
+                  <Crown className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
+                  <h2 className="text-lg md:text-xl font-bold text-foreground">
+                    {lang === 'pt' ? 'Assinante Premium' : 'Premium Subscriber'}
+                  </h2>
+                </div>
+                <p className="text-sm md:text-base text-muted-foreground mb-2">
+                  {lang === 'pt'
+                    ? 'Você tem acesso ilimitado a todos os e-books.'
+                    : 'You have unlimited access to all e-books.'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {lang === 'pt' ? 'Renovação:' : 'Renews:'}{' '}
+                  {new Date(subscription.current_period_end).toLocaleDateString(
+                    lang === 'pt' ? 'pt-BR' : 'en-US'
+                  )}
+                </p>
+              </div>
+              <ManageSubscriptionButton lang={lang} returnUrl={`/${lang}/dashboard`} />
             </div>
-            <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
-              {lang === 'pt'
-                ? 'Você tem acesso ilimitado a todos os e-books.'
-                : 'You have unlimited access to all e-books.'}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {lang === 'pt' ? 'Renovação:' : 'Renews:'}{' '}
-              {new Date(subscription.current_period_end).toLocaleDateString(
-                lang === 'pt' ? 'pt-BR' : 'en-US'
-              )}
-            </p>
           </div>
         )}
 
