@@ -48,8 +48,7 @@ export default function AlphaGritHero({ content, siteSettings, featureFlags }: A
     <section
       className="flex flex-col items-center justify-center px-6 md:px-12 relative" // Added relative for banner positioning
       style={{
-        minHeight: heroDesign.minHeight,
-        paddingTop: alphaGritDesign.components.navigation.height,
+        minHeight: `calc(100vh - 4rem)`, // Full viewport minus sticky header height
       }}
     >
       {/* Optional: Holiday Sale Banner */}

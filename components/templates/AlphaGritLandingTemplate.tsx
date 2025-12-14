@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import AlphaGritNavigation from '@/components/organisms/AlphaGritNavigation';
+import SiteHeader from '@/components/organisms/SiteHeader';
 import AlphaGritHero from '@/components/organisms/AlphaGritHero';
 import FeaturedProduct from '@/components/organisms/FeaturedProduct';
 import RecentBlogPosts from '@/components/organisms/RecentBlogPosts';
@@ -77,11 +77,8 @@ export default function AlphaGritLandingTemplate({
 
   return (
     <div className="min-h-screen bg-black text-white font-body antialiased">
-      {/* Navigation */}
-      <AlphaGritNavigation
-        content={landingContent.navigation}
-        currentLang={lang}
-      />
+      {/* Navigation - Same header used across all pages for consistency */}
+      <SiteHeader lang={lang} />
 
       {/* Main Content */}
       <main>
