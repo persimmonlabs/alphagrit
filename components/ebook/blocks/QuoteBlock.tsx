@@ -13,18 +13,17 @@ export function QuoteBlock({ content, config }: QuoteBlockProps) {
   return (
     <blockquote
       className={cn(
-        'relative my-8 pl-8 pr-4 py-6',
-        'border-l-4 border-primary bg-muted/30 rounded-r-lg',
+        'relative my-8 md:my-10 pl-6 md:pl-8 pr-4 py-1',
+        'border-l-4 border-primary',
         config?.className
       )}
       style={config?.style}
     >
-      <Quote className="absolute top-4 left-2 w-5 h-5 text-primary/50" />
-      <p className="text-lg italic text-foreground leading-relaxed">
+      <p className="text-lg md:text-xl lg:text-2xl italic text-foreground/90 leading-relaxed mb-0">
         &ldquo;{content.text}&rdquo;
       </p>
       {content.author && (
-        <footer className="mt-4 text-sm text-muted-foreground">
+        <footer className="mt-4 text-sm md:text-base text-muted-foreground font-medium">
           &mdash; {content.author}
         </footer>
       )}

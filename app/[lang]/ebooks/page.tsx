@@ -105,19 +105,19 @@ export default async function EbooksCatalogPage({
       {/* E-books Grid */}
       <section className="container mx-auto px-4 py-12 md:py-16">
         {ebooks.length === 0 ? (
-          <div className="text-center py-16">
-            <BookOpen className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+          <div className="text-center py-16 md:py-24">
+            <BookOpen className="w-14 h-14 md:w-16 md:h-16 mx-auto text-muted-foreground/30 mb-4" />
+            <h2 className="text-lg md:text-xl font-semibold text-foreground mb-2">
               {lang === 'pt' ? 'Nenhum e-book disponível' : 'No e-books available'}
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               {lang === 'pt'
                 ? 'Novos e-books serão adicionados em breve.'
                 : 'New e-books will be added soon.'}
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {ebooks.map((ebook) => {
               const ebookTitle = lang === 'pt' && ebook.title_pt ? ebook.title_pt : ebook.title_en;
               const ebookDescription = lang === 'pt' && ebook.description_pt
@@ -129,51 +129,51 @@ export default async function EbooksCatalogPage({
                 <Link
                   key={ebook.id}
                   href={`/${lang}/ebooks/${ebook.slug}`}
-                  className="group block bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg"
+                  className="group block bg-card border border-border overflow-hidden hover:border-primary/50 transition-all hover:shadow-xl"
                 >
                   {/* Cover Image */}
-                  <div className="aspect-[3/4] relative bg-muted">
+                  <div className="aspect-[3/4] relative bg-muted overflow-hidden">
                     {ebook.cover_image_url ? (
                       <Image
                         src={ebook.cover_image_url}
                         alt={ebookTitle}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <BookOpen className="w-16 h-16 text-muted-foreground/30" />
+                        <BookOpen className="w-16 h-16 text-muted-foreground/20" />
                       </div>
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="p-5">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                  <div className="p-4 md:p-5 bg-card">
+                    <h3 className="text-base md:text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
                       {ebookTitle}
                     </h3>
 
                     {ebookDescription && (
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      <p className="text-xs md:text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
                         {ebookDescription}
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-4 text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <BookOpen className="w-4 h-4" />
-                          {chapterCount} {lang === 'pt' ? 'capítulos' : 'chapters'}
+                    <div className="flex items-center justify-between text-xs md:text-sm pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-3 md:gap-4 text-muted-foreground">
+                        <span className="flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                          <span className="font-medium">{chapterCount}</span>
                         </span>
                         {ebook.estimated_read_time_minutes > 0 && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {ebook.estimated_read_time_minutes} min
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                            <span className="font-medium">{ebook.estimated_read_time_minutes}m</span>
                           </span>
                         )}
                       </div>
 
-                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </div>
                 </Link>

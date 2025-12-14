@@ -12,12 +12,13 @@ export function TextBlock({ content, config }: TextBlockProps) {
   return (
     <div
       className={cn(
-        'prose prose-lg dark:prose-invert max-w-none',
-        'prose-headings:font-heading prose-headings:text-foreground',
-        'prose-p:text-muted-foreground prose-p:leading-relaxed',
-        'prose-a:text-primary hover:prose-a:text-primary/80',
-        'prose-strong:text-foreground',
-        'prose-ul:text-muted-foreground prose-ol:text-muted-foreground',
+        'prose prose-base md:prose-lg lg:prose-xl dark:prose-invert max-w-3xl',
+        'prose-headings:font-heading prose-headings:text-foreground prose-headings:font-bold',
+        'prose-p:text-muted-foreground prose-p:leading-[1.7] prose-p:md:leading-[1.8] prose-p:mb-5',
+        'prose-a:text-primary prose-a:font-medium hover:prose-a:text-primary/80 prose-a:no-underline hover:prose-a:underline prose-a:transition-colors',
+        'prose-strong:text-foreground prose-strong:font-semibold',
+        'prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-ul:space-y-2 prose-ol:space-y-2',
+        'prose-li:leading-relaxed',
         config?.className
       )}
       style={config?.style}

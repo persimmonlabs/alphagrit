@@ -39,22 +39,22 @@ export function CalloutBlock({ content, config }: CalloutBlockProps) {
   return (
     <div
       className={cn(
-        'my-6 p-5 rounded-lg border',
+        'my-6 md:my-8 pl-5 md:pl-6 pr-4 py-4 md:py-5 border-l-4',
         style.bg,
         config?.className
       )}
       style={config?.style}
     >
-      <div className="flex gap-4">
-        <Icon className={cn('w-6 h-6 flex-shrink-0 mt-0.5', style.iconColor)} />
+      <div className="flex gap-3 md:gap-4">
+        <Icon className={cn('w-5 h-5 md:w-6 md:h-6 flex-shrink-0 mt-0.5', style.iconColor)} />
         <div className="flex-1 min-w-0">
           {content.title && (
-            <h4 className="font-semibold text-foreground mb-2">
+            <h4 className="font-semibold text-foreground mb-2 text-base md:text-lg">
               {content.title}
             </h4>
           )}
           <div
-            className="text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
+            className="text-muted-foreground prose prose-sm md:prose-base dark:prose-invert max-w-none prose-p:mb-3 prose-p:last:mb-0"
             dangerouslySetInnerHTML={{ __html: content.content }}
           />
         </div>
