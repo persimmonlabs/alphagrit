@@ -67,15 +67,12 @@ export async function isAdmin() {
   return profile?.role === 'admin'
 }
 
-// Check if user has access to an ebook (SUBSCRIPTION-ONLY MODEL)
-// All ebooks are accessible with an active subscription
-// Chapter 1 is always free (handled separately in canAccessChapter)
-export async function hasEbookAccess(ebookId: string) {
+// Check if user has an active subscription
+export async function hasActiveSubscription() {
   const supabase = createClient()
   const user = await getUser()
   if (!user) return false
 
-  // Only active subscription grants full ebook access
   const { data: subscription } = await supabase
     .from('subscriptions')
     .select('id')
@@ -84,4 +81,11 @@ export async function hasEbookAccess(ebookId: string) {
     .single()
 
   return !!subscription
+}
+
+// Check if user has access to an ebook (SUBSCRIPTION-ONLY MODEL)
+// All ebooks are accessible with an active subscription
+// Chapter 1 is always free (handled separately in canAccessChapter)
+export async function hasEbookAccess(ebookId: string) {
+  return hasActiveSubscription()
 }
