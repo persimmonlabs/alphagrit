@@ -21,6 +21,10 @@ export interface BlogPost {
   published_at: string | null
   created_at: string
   updated_at: string
+  // Audio fields
+  audio_url: string | null
+  audio_title: string | null
+  audio_artist: string | null
 }
 
 // Get all published blog posts

@@ -6,12 +6,12 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { getBlogPostById, updateBlogPost, uploadBlogImage, BLOG_CATEGORIES, type BlogPost } from '@/lib/supabase/blog-client'
+import { getBlogPostById, updateBlogPost, uploadBlogImage, uploadBlogAudio, deleteBlogAudio, BLOG_CATEGORIES, type BlogPost } from '@/lib/supabase/blog-client'
 import { TipTapEditor } from '@/components/admin/TipTapEditor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Upload, Save } from 'lucide-react'
+import { ArrowLeft, Upload, Save, Music, X, Trash2 } from 'lucide-react'
 
 export default function EditBlogPostPage() {
   const router = useRouter()
@@ -22,6 +22,9 @@ export default function EditBlogPostPage() {
   const [saving, setSaving] = useState(false)
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [audioFile, setAudioFile] = useState<File | null>(null)
+  const [audioFileName, setAudioFileName] = useState<string | null>(null)
+  const [existingAudioUrl, setExistingAudioUrl] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'en' | 'pt'>('en')
 
   const [form, setForm] = useState({
@@ -40,6 +43,8 @@ export default function EditBlogPostPage() {
     is_featured: false,
     is_published: false,
     published_at: null as string | null,
+    audio_title: '',
+    audio_artist: '',
   })
 
   useEffect(() => {
@@ -90,8 +95,11 @@ export default function EditBlogPostPage() {
       is_featured: post.is_featured,
       is_published: post.is_published,
       published_at: post.published_at,
+      audio_title: post.audio_title || '',
+      audio_artist: post.audio_artist || '',
     })
     setCoverPreview(post.cover_image_url || null)
+    setExistingAudioUrl(post.audio_url || null)
     setLoading(false)
   }
 
@@ -100,6 +108,33 @@ export default function EditBlogPostPage() {
     if (file) {
       setCoverFile(file)
       setCoverPreview(URL.createObjectURL(file))
+    }
+  }
+
+  function handleAudioChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) {
+      setAudioFile(file)
+      setAudioFileName(file.name)
+    }
+  }
+
+  function removeNewAudio() {
+    setAudioFile(null)
+    setAudioFileName(null)
+  }
+
+  async function removeExistingAudio() {
+    if (!existingAudioUrl) return
+    if (!confirm('Are you sure you want to remove the audio? This cannot be undone.')) return
+
+    try {
+      await deleteBlogAudio(existingAudioUrl)
+      await updateBlogPost(postId, { audio_url: null, audio_title: null, audio_artist: null })
+      setExistingAudioUrl(null)
+      setForm(prev => ({ ...prev, audio_title: '', audio_artist: '' }))
+    } catch (error) {
+      alert('Failed to remove audio: ' + (error as Error).message)
     }
   }
 
@@ -124,6 +159,13 @@ export default function EditBlogPostPage() {
         publishedAt = null
       }
 
+      // Upload new audio if selected
+      let audioUrl = existingAudioUrl
+      if (audioFile) {
+        const newAudioUrl = await uploadBlogAudio(audioFile, postId)
+        if (newAudioUrl) audioUrl = newAudioUrl
+      }
+
       await updateBlogPost(postId, {
         title_en: form.title_en,
         title_pt: form.title_pt || null,
@@ -140,6 +182,9 @@ export default function EditBlogPostPage() {
         is_featured: form.is_featured,
         is_published: form.is_published,
         published_at: publishedAt,
+        audio_url: audioUrl,
+        audio_title: form.audio_title || null,
+        audio_artist: form.audio_artist || null,
       })
 
       router.push('/admin/blog')
@@ -198,6 +243,103 @@ export default function EditBlogPostPage() {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Background Audio */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Music className="w-5 h-5 text-orange-500" />
+              Background Audio (Optional)
+            </h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Add background music that plays when readers view this post. Audio will attempt to autoplay but users can control playback.
+            </p>
+
+            {/* Existing Audio */}
+            {existingAudioUrl && !audioFile && (
+              <div className="flex items-center justify-between bg-neutral-800 rounded-lg p-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <Music className="w-5 h-5 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{form.audio_title || 'Current Audio'}</p>
+                    <p className="text-xs text-green-500">Currently active</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeExistingAudio}
+                  className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                  title="Remove audio"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+
+            {/* New Audio to Upload */}
+            {audioFileName ? (
+              <div className="flex items-center justify-between bg-neutral-800 rounded-lg p-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                    <Music className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{audioFileName}</p>
+                    <p className="text-xs text-orange-500">
+                      {existingAudioUrl ? 'Will replace current audio' : 'Ready to upload'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeNewAudio}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <Input
+                  id="audio"
+                  type="file"
+                  accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm,audio/aac,.mp3,.wav,.ogg,.m4a"
+                  onChange={handleAudioChange}
+                  className="bg-neutral-800 border-neutral-700"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Supported: MP3, WAV, OGG, M4A (max 50MB). MP3 recommended for best compatibility.
+                </p>
+              </div>
+            )}
+
+            {/* Audio Metadata */}
+            {(existingAudioUrl || audioFileName || audioFile) && (
+              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-neutral-800">
+                <div>
+                  <Label htmlFor="audio_title">Audio Title</Label>
+                  <Input
+                    id="audio_title"
+                    value={form.audio_title}
+                    onChange={(e) => setForm(prev => ({ ...prev, audio_title: e.target.value }))}
+                    className="mt-1 bg-neutral-800 border-neutral-700"
+                    placeholder="e.g., Ambient Focus Music"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="audio_artist">Artist / Source</Label>
+                  <Input
+                    id="audio_artist"
+                    value={form.audio_artist}
+                    onChange={(e) => setForm(prev => ({ ...prev, audio_artist: e.target.value }))}
+                    className="mt-1 bg-neutral-800 border-neutral-700"
+                    placeholder="e.g., Royalty Free Music"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Basic Info */}

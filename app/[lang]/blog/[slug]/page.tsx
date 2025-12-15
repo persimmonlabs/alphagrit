@@ -5,6 +5,7 @@ import { Clock, User } from 'lucide-react';
 import { getBlogPostBySlug, type BlogPost } from '@/lib/supabase/blog';
 import { RichContentRenderer } from '@/components/ebook';
 import SiteHeader from '@/components/organisms/SiteHeader';
+import { BlogAudioPlayer } from '@/components/blog/BlogAudioPlayer';
 
 export const dynamic = 'force-dynamic';
 
@@ -160,6 +161,16 @@ export default async function BlogPostPage({
           </div>
         </div>
       </article>
+
+      {/* Audio Player - only if audio_url exists */}
+      {post.audio_url && (
+        <BlogAudioPlayer
+          audioUrl={post.audio_url}
+          title={post.audio_title || title}
+          artist={post.audio_artist || undefined}
+          autoPlayAttempt={true}
+        />
+      )}
     </div>
   );
 }

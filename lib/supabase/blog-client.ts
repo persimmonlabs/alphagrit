@@ -42,6 +42,10 @@ export interface BlogPost {
   published_at: string | null
   created_at: string
   updated_at: string
+  // Audio fields
+  audio_url: string | null
+  audio_title: string | null
+  audio_artist: string | null
 }
 
 // Generate slug from title
@@ -173,6 +177,55 @@ export async function uploadBlogImage(file: File, postId: string): Promise<strin
     .getPublicUrl(filePath)
 
   return data.publicUrl
+}
+
+// Upload blog audio file
+export async function uploadBlogAudio(file: File, postId: string): Promise<string | null> {
+  await requireAdmin()
+  const supabase = createClient()
+  if (!supabase) return null
+
+  const fileExt = file.name.split('.').pop()?.toLowerCase() || 'mp3'
+  const fileName = `${postId}-${Date.now()}.${fileExt}`
+  const filePath = `audio/${fileName}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('blog-audio')
+    .upload(filePath, file, { upsert: true })
+
+  if (uploadError) {
+    console.error('Error uploading audio:', uploadError)
+    return null
+  }
+
+  const { data } = supabase.storage
+    .from('blog-audio')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
+}
+
+// Delete blog audio file
+export async function deleteBlogAudio(audioUrl: string): Promise<boolean> {
+  await requireAdmin()
+  const supabase = createClient()
+  if (!supabase) return false
+
+  // Extract file path from URL
+  const urlParts = audioUrl.split('/blog-audio/')
+  if (urlParts.length < 2) return false
+  const filePath = urlParts[1]
+
+  const { error } = await supabase.storage
+    .from('blog-audio')
+    .remove([filePath])
+
+  if (error) {
+    console.error('Error deleting audio:', error)
+    return false
+  }
+
+  return true
 }
 
 // Blog categories
