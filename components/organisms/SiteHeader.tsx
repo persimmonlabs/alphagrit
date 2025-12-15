@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { Menu, X } from 'lucide-react';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 interface SiteHeaderProps {
   lang: string;
@@ -16,10 +17,12 @@ interface SiteHeaderProps {
  *
  * Auth-aware navigation that shows on all interior pages (ebooks, blog, dashboard, etc.)
  * Shows DASHBOARD when logged in, LOGIN when not.
+ * Shows EBOOKS link only for admin users.
  */
 export default function SiteHeader({ lang }: SiteHeaderProps) {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const supabase = useMemo(() => createClient(), []);
@@ -28,13 +31,40 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setIsLoggedIn(!!user);
+
+      // Check if user is admin
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        setIsAdmin(profile?.role === 'admin');
+      } else {
+        setIsAdmin(false);
+      }
+
       setIsLoading(false);
     };
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event: string, session: { user?: unknown } | null) => {
+      async (_event: string, session: { user?: unknown } | null) => {
         setIsLoggedIn(!!session?.user);
+
+        // Re-check admin status on auth state change
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', (session.user as { id: string }).id)
+            .single();
+
+          setIsAdmin(profile?.role === 'admin');
+        } else {
+          setIsAdmin(false);
+        }
       }
     );
 
@@ -52,9 +82,10 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
     setMobileMenuOpen(false);
   };
 
+  // Only show EBOOKS link to admin users
   const navLinks = [
     { label: lang === 'pt' ? 'BLOG' : 'BLOG', href: `/${lang}/blog` },
-    { label: lang === 'pt' ? 'EBOOKS' : 'EBOOKS', href: `/${lang}/ebooks` },
+    ...(isAdmin ? [{ label: lang === 'pt' ? 'EBOOKS' : 'EBOOKS', href: `/${lang}/ebooks` }] : []),
   ];
 
   const authLink = isLoggedIn
@@ -102,6 +133,7 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
                 )}
               </>
             )}
+            <LanguageSwitcher currentLang={lang} />
           </nav>
 
           {/* Mobile Menu Button */}
@@ -147,6 +179,9 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
                   )}
                 </>
               )}
+              <div className="pt-2 border-t border-border">
+                <LanguageSwitcher currentLang={lang} />
+              </div>
             </div>
           </nav>
         )}

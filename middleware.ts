@@ -6,6 +6,13 @@ import Negotiator from 'negotiator'
 import { updateSession, checkAdminAccess } from '@/lib/supabase/middleware'
 
 function getLocale(request: NextRequest): string {
+  // Check for cookie preference first
+  const cookieLocale = request.cookies.get('preferred-locale')?.value
+  if (cookieLocale && i18n.locales.includes(cookieLocale as any)) {
+    return cookieLocale
+  }
+
+  // Fall back to browser language detection
   const negotiatorHeaders: Record<string, string> = {}
   request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
 
@@ -38,6 +45,32 @@ export async function middleware(request: NextRequest) {
   // Admin route protection
   if (pathname.startsWith('/admin')) {
     return checkAdminAccess(request)
+  }
+
+  // Protect ebook routes - redirect non-admins to blog
+  const ebookRoutePattern = /^\/(en|pt)\/ebooks/
+  if (ebookRoutePattern.test(pathname)) {
+    const { user, supabase } = await updateSession(request)
+
+    // Check if user is admin
+    let isAdmin = false
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      isAdmin = profile?.role === 'admin'
+    }
+
+    // Redirect non-admins to blog
+    if (!isAdmin) {
+      const locale = pathname.startsWith('/en') ? 'en' : 'pt'
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}/blog`
+      return NextResponse.redirect(url)
+    }
   }
 
   // Update Supabase session for all other routes
