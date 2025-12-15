@@ -78,19 +78,11 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
     router.refresh();
   };
 
-  const handleNavClick = () => {
-    setMobileMenuOpen(false);
-  };
-
   // Only show EBOOKS link to admin users
   const navLinks = [
     { label: lang === 'pt' ? 'BLOG' : 'BLOG', href: `/${lang}/blog` },
     ...(isAdmin ? [{ label: lang === 'pt' ? 'EBOOKS' : 'EBOOKS', href: `/${lang}/ebooks` }] : []),
   ];
-
-  const authLink = isLoggedIn
-    ? { label: lang === 'pt' ? 'CONTA' : 'ACCOUNT', href: `/${lang}/account` }
-    : { label: lang === 'pt' ? 'ENTRAR' : 'LOGIN', href: `/${lang}/auth/login` };
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -115,23 +107,41 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
                 {link.label}
               </Link>
             ))}
-            {!isLoading && (
+            {/* Auth links - always show LOGIN for non-logged-in users */}
+            {!isLoading ? (
               <>
-                <Link
-                  href={authLink.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {authLink.label}
-                </Link>
-                {isLoggedIn && (
-                  <button
-                    onClick={handleLogout}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      href={`/${lang}/dashboard`}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {lang === 'pt' ? 'PAINEL' : 'DASHBOARD'}
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {lang === 'pt' ? 'SAIR' : 'LOGOUT'}
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href={`/${lang}/auth/login`}
+                    className="text-sm font-medium px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                   >
-                    {lang === 'pt' ? 'SAIR' : 'LOGOUT'}
-                  </button>
+                    {lang === 'pt' ? 'ENTRAR' : 'LOGIN'}
+                  </Link>
                 )}
               </>
+            ) : (
+              /* Show LOGIN button even during loading for immediate visibility */
+              <Link
+                href={`/${lang}/auth/login`}
+                className="text-sm font-medium px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                {lang === 'pt' ? 'ENTRAR' : 'LOGIN'}
+              </Link>
             )}
             <LanguageSwitcher currentLang={lang} />
           </nav>
@@ -160,24 +170,43 @@ export default function SiteHeader({ lang }: SiteHeaderProps) {
                   {link.label}
                 </Link>
               ))}
-              {!isLoading && (
+              {/* Auth links - always show LOGIN for non-logged-in users */}
+              {!isLoading ? (
                 <>
-                  <Link
-                    href={authLink.href}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {authLink.label}
-                  </Link>
-                  {isLoggedIn && (
-                    <button
-                      onClick={handleLogout}
-                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors text-left"
+                  {isLoggedIn ? (
+                    <>
+                      <Link
+                        href={`/${lang}/dashboard`}
+                        className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {lang === 'pt' ? 'PAINEL' : 'DASHBOARD'}
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors text-left"
+                      >
+                        {lang === 'pt' ? 'SAIR' : 'LOGOUT'}
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href={`/${lang}/auth/login`}
+                      className="text-sm font-medium px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-center"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
-                      {lang === 'pt' ? 'SAIR' : 'LOGOUT'}
-                    </button>
+                      {lang === 'pt' ? 'ENTRAR' : 'LOGIN'}
+                    </Link>
                   )}
                 </>
+              ) : (
+                <Link
+                  href={`/${lang}/auth/login`}
+                  className="text-sm font-medium px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {lang === 'pt' ? 'ENTRAR' : 'LOGIN'}
+                </Link>
               )}
               <div className="pt-2 border-t border-border">
                 <LanguageSwitcher currentLang={lang} />
